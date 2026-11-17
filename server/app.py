@@ -6,9 +6,12 @@
 
 import os
 import re
+import time
 import datetime
 import requests
 from flask import Flask, request, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 # ---------- 1. Settings (Render ke Environment Variables se aate hain) ----------
 REGION = os.environ.get("AWS_REGION", "ap-south-1").strip()
@@ -27,6 +30,12 @@ ALLOWED_ORIGINS = [
     for o in os.environ.get("ALLOWED_ORIGINS", "https://fitnessdiet.onrender.com").split(",")
     if o.strip()
 ]
+
+# login settings (Render Environment Variables)
+MONGODB_URI = os.environ.get("MONGODB_URI", "").strip()
+SECRET_KEY = os.environ.get("SECRET_KEY", "").strip()          # lamba random text, sirf Render me
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
+TOKEN_DAYS = 60
 
 # ---------- 2. Kaunse Claude models try karne hain (pehla na chale to agla) ----------
 def unique(items):
@@ -78,8 +87,8 @@ def add_cors(resp):
     if origin and (origin in ALLOWED_ORIGINS or "*" in ALLOWED_ORIGINS):
         resp.headers["Access-Control-Allow-Origin"] = origin
         resp.headers["Vary"] = "Origin"
-        resp.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-        resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        resp.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        resp.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
     return resp
 
 
@@ -104,7 +113,7 @@ def home():
 
 @app.get("/health")
 def health():
-    return jsonify(ok=True, ai=bool(TOKEN), region=REGION, images=True)
+    return jsonify(ok=True, ai=bool(TOKEN), region=REGION, images=True, login=bool(MONGODB_URI and SECRET_KEY))
 
 
 # ---------- 6. Main AI route ----------
@@ -210,6 +219,177 @@ def call_bedrock(model, messages, max_tokens):
     if not text:
         raise RuntimeError("No text returned")
     return text
+
+
+# =====================================================================
+# 7. LOGIN + CLOUD SAVE
+#    - email/password (password hash hi save hota hai, asli password kabhi nahi)
+#    - Google login (Google ka ID token verify karte hain)
+#    - har user ka app data (profile, food log, weight...) MongoDB me
+# =====================================================================
+_users = None
+def users_col():
+    """MongoDB collection 'users' (pehli baar connect karta hai)."""
+    global _users
+    if _users is not None:
+        return _users
+    if not MONGODB_URI:
+        return None
+    try:
+        from pymongo import MongoClient
+        client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=8000)
+        col = client["fitmentor"]["users"]
+        col.create_index("email", unique=True, sparse=True)
+        col.create_index("google_sub", unique=True, sparse=True)
+        _users = col
+    except Exception as e:
+        print("MongoDB connect error:", e)
+        return None
+    return _users
+
+def signer():
+    return URLSafeTimedSerializer(SECRET_KEY, salt="fitmentor-login")
+
+def make_token(user_id):
+    return signer().dumps(str(user_id))
+
+def current_user():
+    """Authorization: Bearer <token> se user nikaalo."""
+    col = users_col()
+    if col is None or not SECRET_KEY:
+        return None
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        return None
+    try:
+        uid = signer().loads(auth[7:], max_age=TOKEN_DAYS * 86400)
+    except (BadSignature, SignatureExpired):
+        return None
+    from bson import ObjectId
+    try:
+        return col.find_one({"_id": ObjectId(uid)})
+    except Exception:
+        return None
+
+def public_user(u):
+    return {"email": u.get("email"), "name": u.get("name", ""), "google": bool(u.get("google_sub")),
+            "data": u.get("data") or {}, "updated": u.get("updated", 0)}
+
+# login attempts ki limit (password guess karne se rokne ke liye)
+_attempts = {}
+def too_many(key, limit=10, window=900):
+    now = time.time()
+    arr = [t for t in _attempts.get(key, []) if now - t < window]
+    arr.append(now)
+    _attempts[key] = arr
+    return len(arr) > limit
+
+def need_db():
+    if users_col() is None or not SECRET_KEY:
+        return jsonify(error="Login is not set up on the server yet."), 503
+    return None
+
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+@app.get("/api/config")
+def config():
+    return jsonify(login=users_col() is not None and bool(SECRET_KEY), google_client_id=GOOGLE_CLIENT_ID)
+
+@app.route("/api/auth/register", methods=["POST", "OPTIONS"])
+def register():
+    if request.method == "OPTIONS":
+        return "", 204
+    bad = need_db()
+    if bad: return bad
+    b = request.get_json(silent=True) or {}
+    email = str(b.get("email", "")).strip().lower()
+    pw = str(b.get("password", ""))
+    name = str(b.get("name", "")).strip()[:60]
+    if not EMAIL_RE.match(email):
+        return jsonify(error="Please enter a valid email."), 400
+    if len(pw) < 8:
+        return jsonify(error="Password must be at least 8 characters."), 400
+    ip = (request.headers.get("X-Forwarded-For") or request.remote_addr or "").split(",")[0].strip()
+    if too_many("reg:" + ip, 8, 3600):
+        return jsonify(error="Too many sign-ups from here. Try again later."), 429
+    col = users_col()
+    if col.find_one({"email": email}):
+        return jsonify(error="An account with this email already exists. Please sign in."), 409
+    doc = {"email": email, "name": name, "pw": generate_password_hash(pw), "created": int(time.time()), "data": {}, "updated": 0}
+    uid = col.insert_one(doc).inserted_id
+    return jsonify(token=make_token(uid), user=public_user(doc))
+
+@app.route("/api/auth/login", methods=["POST", "OPTIONS"])
+def login():
+    if request.method == "OPTIONS":
+        return "", 204
+    bad = need_db()
+    if bad: return bad
+    b = request.get_json(silent=True) or {}
+    email = str(b.get("email", "")).strip().lower()
+    pw = str(b.get("password", ""))
+    if too_many("login:" + email, 10, 900):
+        return jsonify(error="Too many attempts. Wait 15 minutes and try again."), 429
+    u = users_col().find_one({"email": email})
+    if not u or not u.get("pw") or not check_password_hash(u["pw"], pw):
+        return jsonify(error="Email or password is wrong."), 401
+    return jsonify(token=make_token(u["_id"]), user=public_user(u))
+
+@app.route("/api/auth/google", methods=["POST", "OPTIONS"])
+def google_login():
+    if request.method == "OPTIONS":
+        return "", 204
+    bad = need_db()
+    if bad: return bad
+    if not GOOGLE_CLIENT_ID:
+        return jsonify(error="Google login is not set up yet."), 503
+    cred = str((request.get_json(silent=True) or {}).get("credential", ""))
+    try:
+        r = requests.get("https://oauth2.googleapis.com/tokeninfo", params={"id_token": cred}, timeout=10)
+        info = r.json() if r.ok else {}
+    except Exception:
+        info = {}
+    if info.get("aud") != GOOGLE_CLIENT_ID or info.get("iss") not in ("accounts.google.com", "https://accounts.google.com") or str(info.get("email_verified")) != "true":
+        return jsonify(error="Google sign-in failed. Please try again."), 401
+    col = users_col()
+    sub, email = info["sub"], info.get("email", "").lower()
+    u = col.find_one({"google_sub": sub}) or (col.find_one({"email": email}) if email else None)
+    if u:
+        if not u.get("google_sub"):
+            col.update_one({"_id": u["_id"]}, {"$set": {"google_sub": sub}})
+    else:
+        u = {"email": email, "name": info.get("given_name") or info.get("name", ""), "google_sub": sub, "created": int(time.time()), "data": {}, "updated": 0}
+        u["_id"] = col.insert_one(dict(u)).inserted_id
+    return jsonify(token=make_token(u["_id"]), user=public_user(u))
+
+@app.route("/api/me", methods=["GET", "DELETE", "OPTIONS"])
+def me():
+    if request.method == "OPTIONS":
+        return "", 204
+    u = current_user()
+    if not u:
+        return jsonify(error="Please sign in again."), 401
+    if request.method == "DELETE":
+        users_col().delete_one({"_id": u["_id"]})
+        return jsonify(ok=True)
+    return jsonify(user=public_user(u))
+
+@app.route("/api/data", methods=["PUT", "OPTIONS"])
+def save_data():
+    if request.method == "OPTIONS":
+        return "", 204
+    u = current_user()
+    if not u:
+        return jsonify(error="Please sign in again."), 401
+    b = request.get_json(silent=True) or {}
+    data = b.get("data")
+    if not isinstance(data, dict):
+        return jsonify(error="Bad data."), 400
+    if len(request.data or b"") > 1_500_000:
+        return jsonify(error="Data too large."), 413
+    now = int(time.time() * 1000)
+    users_col().update_one({"_id": u["_id"]}, {"$set": {"data": data, "updated": now}})
+    return jsonify(ok=True, updated=now)
 
 
 # local test ke liye: python app.py   (Render par gunicorn chalata hai)
