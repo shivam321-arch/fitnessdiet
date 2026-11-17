@@ -177,6 +177,7 @@ details summary{cursor:pointer}
 .hero-copy h2{font-size:clamp(34px,6.4vw,66px);line-height:1.02;letter-spacing:-.035em;font-weight:700;margin:12px 0 14px}
 .hero-copy h2 em{font-style:normal;background:linear-gradient(100deg,var(--pri),var(--lime));-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero-copy p{color:var(--mut);font-size:17px;max-width:480px;margin:0 0 22px}
+.morph-lab{position:absolute;z-index:2;right:15%;bottom:14%;font-family:var(--disp);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--pri);padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pri) 40%,transparent);background:rgba(7,9,13,.5)}@media(max-width:900px){.morph-lab{right:50%;transform:translateX(50%);bottom:auto;top:44vh}}
 .hero-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px;font-size:12px;color:var(--mut)}
 .hero-legend span{display:inline-flex;align-items:center;gap:6px}
 .hero-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;box-shadow:0 0 10px currentColor}
@@ -188,6 +189,8 @@ details summary{cursor:pointer}
 .feat .card.in{opacity:1;transform:none}
 .feat .card .mi{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--pri2);color:var(--pri);margin-bottom:12px}
 .feat .card .mi svg{width:22px;height:22px}
+.why{padding:56px 22px 8px;max-width:1100px}.why-h{font-size:clamp(26px,4vw,40px);line-height:1.1;letter-spacing:-.02em;margin:8px 0 26px;max-width:760px}.why-g{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.why-g b{font-size:13px;color:var(--pri);letter-spacing:.1em}.why-g h3{font-size:19px;margin:6px 0 6px}
+.auth{min-height:calc(100vh - 40px);display:grid;place-items:center;padding:20px 0}.auth-card{width:100%;max-width:420px;padding:26px 22px}.logo-lg{display:flex;justify-content:center}.logo-lg i{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-style:normal;background:conic-gradient(from 200deg,var(--pri),var(--lime),var(--fat),var(--pri));position:relative}.logo-lg i::after{content:'';position:absolute;inset:3px;border-radius:13px;background:var(--card)}.logo-lg b{position:relative;z-index:1;font-family:var(--disp);font-size:22px}#authForm{margin-top:16px}.orline{display:flex;align-items:center;gap:10px;margin:16px 0 4px;color:var(--mut);font-size:12px}.orline::before,.orline::after{content:'';flex:1;height:1px;background:var(--line2)}
 .hero-cta2{text-align:center;padding:10px 22px 60px}
 @media(max-width:700px){.hero{align-items:end}.hero-copy{padding-bottom:84px}.hero-fallback{align-items:start;padding-top:6vh}}
 
@@ -286,22 +289,55 @@ details summary{cursor:pointer}
 </div>
 <main id="main">
 
+<!-- ============ SIGN IN ============ -->
+<section class="view" id="v-auth" aria-label="Sign in">
+ <div class="auth">
+  <div class="card auth-card">
+   <div class="logo-lg"><i><b>F</b></i></div>
+   <h2 id="authTitle" style="text-align:center;margin:10px 0 4px">Create your account</h2>
+   <div class="small muted" style="text-align:center">Your plan, food log and workouts are saved to your account, so they work on any phone or laptop.</div>
+   <div class="tabs" id="authTabs" style="margin-top:16px"><button data-a="up" class="on">Create account</button><button data-a="in">Sign in</button></div>
+   <div id="authConn" class="small muted" style="text-align:center;margin-top:14px">Connecting to FitMentor…</div>
+   <div id="gWrap" class="hide" style="margin-top:16px"><div id="gBtn" style="display:flex;justify-content:center;min-height:44px"></div><div class="orline"><span>or with email</span></div></div>
+   <form id="authForm" class="hide" novalidate>
+    <div id="nameRow"><label for="aName">Your name</label><input id="aName" autocomplete="given-name" maxlength="60"></div>
+    <div style="margin-top:10px"><label for="aEmail">Email</label><input id="aEmail" type="email" autocomplete="email" inputmode="email" required></div>
+    <div style="margin-top:10px"><label for="aPw">Password</label><input id="aPw" type="password" autocomplete="new-password" minlength="8" required><div class="tiny muted" id="pwHint">At least 8 characters.</div></div>
+    <div class="err" id="authErr" role="alert"></div>
+    <button class="btn glow block" id="authGo" type="submit" style="margin-top:6px">Create account</button>
+   </form>
+   <div id="authOffline" class="alert w hide" style="margin-top:14px"><span id="authOfflineTxt"></span><div class="row" style="margin-top:10px"><button class="btn sm" id="authRetry" type="button">Try again</button><button class="btn ghost sm" id="authSkip" type="button">Continue without account</button></div></div>
+   <div class="tiny muted" style="text-align:center;margin-top:14px">Passwords are stored encrypted. We never sell your data. <button class="back tiny" id="authBack" type="button" style="padding:0">← Back</button></div>
+  </div>
+ </div>
+</section>
+
 <!-- ============ ONBOARDING ============ -->
 <!-- ============ LANDING HERO ============ -->
 <section class="view" id="v-hero" aria-label="Welcome">
  <div class="hero" id="heroWrap">
   <div class="hero-stage" id="heroStage" aria-hidden="true"></div>
   <div class="hero-fallback" id="heroFallback" aria-hidden="true">
-   <svg viewBox="0 0 520 300"><defs><linearGradient id="hm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9F3F6"/><stop offset=".45" stop-color="#6B7C86"/><stop offset="1" stop-color="#1A242B"/></linearGradient><linearGradient id="hp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A4A55"/><stop offset=".5" stop-color="#11181E"/><stop offset="1" stop-color="#05080B"/></linearGradient><radialGradient id="hg"><stop offset="0" stop-color="#2EE6F0" stop-opacity=".35"/><stop offset="1" stop-color="#2EE6F0" stop-opacity="0"/></radialGradient></defs><ellipse cx="260" cy="150" rx="250" ry="120" fill="url(#hg)"/><rect x="130" y="138" width="260" height="24" rx="12" fill="url(#hm)"/><g><rect x="88" y="70" width="46" height="160" rx="12" fill="url(#hp)" stroke="#2EE6F0" stroke-opacity=".35"/><rect x="60" y="92" width="32" height="116" rx="10" fill="url(#hp)" stroke="#C4F25A" stroke-opacity=".25"/><rect x="386" y="70" width="46" height="160" rx="12" fill="url(#hp)" stroke="#2EE6F0" stroke-opacity=".35"/><rect x="428" y="92" width="32" height="116" rx="10" fill="url(#hp)" stroke="#C4F25A" stroke-opacity=".25"/></g><g><circle cx="200" cy="64" r="5" fill="#2EE6F0"/><circle cx="330" cy="248" r="4" fill="#C4F25A"/><circle cx="470" cy="60" r="4" fill="#FF9A4A"/><circle cx="40" cy="230" r="3.5" fill="#2EE6F0"/><circle cx="300" cy="40" r="3" fill="#FF9A4A"/></g></svg>
+   <svg viewBox="0 0 520 360"><defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BFF4F8"/><stop offset="1" stop-color="#2A8F99"/></linearGradient><radialGradient id="hg"><stop offset="0" stop-color="#2EE6F0" stop-opacity=".28"/><stop offset="1" stop-color="#2EE6F0" stop-opacity="0"/></radialGradient></defs><ellipse cx="260" cy="190" rx="250" ry="160" fill="url(#hg)"/><g fill="url(#fg)" opacity=".55"><circle cx="150" cy="70" r="20"/><path d="M110 100 Q150 88 190 100 Q214 150 206 196 Q200 220 186 226 L182 320 L160 320 L152 240 L148 240 L140 320 L118 320 L114 226 Q100 220 94 196 Q86 150 110 100Z"/></g><path d="M236 190 H284" stroke="#C4F25A" stroke-width="3" stroke-linecap="round"/><path d="M276 182 L286 190 L276 198" fill="none" stroke="#C4F25A" stroke-width="3" stroke-linecap="round"/><g fill="url(#fg)"><circle cx="370" cy="70" r="20"/><path d="M332 100 Q370 92 408 100 Q414 140 400 170 Q392 196 394 226 L392 320 L376 320 L372 240 L368 240 L364 320 L348 320 L346 226 Q348 196 340 170 Q326 140 332 100Z"/></g><text x="150" y="346" text-anchor="middle" font-family="Inter" font-size="13" fill="#8C9BA8">Today</text><text x="370" y="346" text-anchor="middle" font-family="Inter" font-size="13" fill="#2EE6F0">Your goal</text></svg>
   </div>
   <div class="hero-copy">
    <div class="eyebrow">FitMentor · AI diet + gym mentor</div>
-   <h2>Eat Indian. Train smart. <em>See every gram.</em></h2>
-   <p>Log roti, dal and katori portions by typing, speaking or a photo. Get your calories, protein and a coach who knows your plate — plus a gym plan that fits your body.</p>
-   <div class="row" style="max-width:420px"><button class="btn glow" id="heroStart">Start my free plan</button><button class="btn ghost" id="heroMore">How it works</button></div>
-   <div class="hero-legend"><span><i style="color:var(--pro);background:var(--pro)"></i>Protein</span><span><i style="color:var(--carb);background:var(--carb)"></i>Carbs</span><span><i style="color:var(--fat);background:var(--fat)"></i>Fat</span><span class="tiny">Drag or move to spin</span></div>
+   <h2>Get fit on the food you love — <em>roti, dal, even chai.</em></h2>
+   <p>No foreign diet charts, no starving. FitMentor turns your everyday Indian meals into a plan that works for your body — calories, protein, a workout plan and an AI coach that answers any time.</p>
+   <div class="row" style="max-width:500px"><button class="btn glow" style="white-space:nowrap;flex:1.3" id="heroStart">Start my transformation</button><button class="btn ghost" id="heroMore">How it works</button></div>
+   <div class="hero-legend"><span><i style="color:var(--pro);background:var(--pro)"></i>Protein</span><span><i style="color:var(--carb);background:var(--carb)"></i>Carbs</span><span><i style="color:var(--fat);background:var(--fat)"></i>Fat</span><span class="tiny">Drag to turn · results take months, not days</span></div>
   </div>
+  <div class="morph-lab" id="morphLab" aria-hidden="true">Today</div>
   <div class="hero-scroll" aria-hidden="true">Scroll<i></i></div>
+ </div>
+ <div class="why" id="heroWhy">
+  <div class="eyebrow">Why people start FitMentor</div>
+  <h2 class="why-h">The body you want, built from the kitchen you already have.</h2>
+  <div class="why-g">
+   <div><b class="num">01</b><h3>Lose fat without leaving ghar ka khana</h3><p class="small muted">Your plan is made from roti, dal, sabzi, poha, paneer — just the right katori sizes for your goal.</p></div>
+   <div><b class="num">02</b><h3>Get stronger, at home or in the gym</h3><p class="small muted">Tap a muscle, follow the moving demo, tick your sets. A plan that matches your level, not an athlete’s.</p></div>
+   <div><b class="num">03</b><h3>Never guess again</h3><p class="small muted">Know exactly how much protein you ate and what to eat tonight. Your AI mentor knows your day.</p></div>
+  </div>
  </div>
  <div class="feat" id="heroFeat">
   <div class="card"><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div><h3 style="margin:0 0 6px">Log in 20 seconds</h3><div class="small muted">Type "2 roti, 1 katori dal" or snap your thali. Every number shows where it came from — database, AI estimate or photo range.</div></div>
@@ -309,7 +345,7 @@ details summary{cursor:pointer}
   <div class="card"><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/></svg></div><h3 style="margin:0 0 6px">Workout studio</h3><div class="small muted">Tap a muscle on the body map, follow animated demos, tick your sets and let the rest timer pace you.</div></div>
   <div class="card"><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg></div><h3 style="margin:0 0 6px">Your diet chart, printable</h3><div class="small muted">A week of Indian meals for your target, veg, egg or non-veg, with allergies removed. Save it as a PDF.</div></div>
  </div>
- <div class="hero-cta2"><button class="btn glow" id="heroStart2">Build my plan — 2 minutes</button><div class="tiny muted" style="margin-top:10px">Your data stays in this browser. Not a substitute for a doctor.</div></div>
+ <div class="hero-cta2"><button class="btn glow" id="heroStart2">Start my transformation — free</button><div class="tiny muted" style="margin-top:10px">Your data stays in this browser. Not a substitute for a doctor.</div></div>
 </section>
 
 <section class="view" id="v-onb">
@@ -543,6 +579,7 @@ details summary{cursor:pointer}
 <section class="view" id="v-settings">
   <button class="back" onclick="go('more')">← More</button>
   <div class="card"><h2>Profile</h2><div id="profSum"></div><button class="btn sec" style="margin-top:10px" onclick="startOnb(true)">Edit profile</button></div>
+  <div class="card" id="acctCard"></div>
   <div class="card"><h2>Appearance</h2><div class="small muted">Dark is easier on the eyes at night; light is clearer in bright sun.</div><div class="chips" id="themeChips" style="margin-top:10px"><button class="chip" data-th="dark">Dark</button><button class="chip" data-th="light">Light</button><button class="chip" data-th="auto">Match my phone</button></div></div>
   <div class="card"><h2>Data</h2>
     <div class="small muted">All your data is saved only in this browser. It won’t show on another phone.</div>
@@ -982,11 +1019,11 @@ const SAFETY_RULES=`Rules: You are FitMentor, a friendly diet and gym mentor for
 // ================= navigation =================
 const MAIN=['home','mentor','log','progress','more'];
 function go(v){
- if(!P&&v!=='onb'&&v!=='hero'){startOnb();return}
- const land=v==='hero';document.body.classList.toggle('landing',land);document.querySelector('.top').classList.toggle('hide',land);
+ if(!P&&v!=='onb'&&v!=='hero'&&v!=='auth'){startOnb();return}
+ const land=v==='hero'||v==='auth';document.body.classList.toggle('landing',land);document.querySelector('.top').classList.toggle('hide',land);
  document.querySelector('nav.bottom').classList.toggle('hide',land);if(!land)heroStop();document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));$('v-'+v).classList.add('on');
  const nv=MAIN.includes(v)?v:'more';document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.v===nv));
- ({hero:renderHero,home:renderHome,log:renderLog,mentor:renderMentor,progress:renderProgress,protein:renderProtein,ex:renderEx,water:renderWater,guide:renderGuide,settings:renderSettings,chart:renderChart}[v]||(()=>{}))();
+ ({hero:renderHero,auth:renderAuth,home:renderHome,log:renderLog,mentor:renderMentor,progress:renderProgress,protein:renderProtein,ex:renderEx,water:renderWater,guide:renderGuide,settings:renderSettings,chart:renderChart}[v]||(()=>{}))();
  collectFigs();window.scrollTo({top:0,behavior:'smooth'});
 }
 document.querySelectorAll('nav.bottom button').forEach(b=>b.onclick=()=>go(b.dataset.v));
@@ -1015,6 +1052,7 @@ function startOnb(edit){
  ['name','blood','likeOther','dislikeOther','grain'].forEach(k=>{if(ob[k]==null)ob[k]=''});if(!ob.wake)ob.wake='07:00';if(!ob.sleep)ob.sleep='23:00';
  if(edit&&P){ob.allergies=(P.allergies||[]).filter(a=>ALG.includes(a));ob.algOther=P.algOther||''}
  const old=S.get('profile',null);if(!edit&&old){Object.assign(ob,{sex:old.sex,age:old.age,h:old.h,w:old.w,act:String(old.act),tw:old.tw,tm:old.tm,place:old.place,lvl:old.lvl,cur:old.cur||'',diet:old.diet||ob.diet})}
+ if(!edit&&!ob.name){ob.name=S.get('preName','')||''}
  obStep=0;document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));$('v-onb').classList.add('on');document.querySelector('nav.bottom').classList.add('hide');renderOnb();
 }
 function field(id,lab,type,val,attrs=''){return `<div><label for="o_${id}">${lab}</label><input id="o_${id}" type="${type}" value="${esc(val)}" ${attrs}><div class="err" id="e_${id}"></div></div>`}
@@ -1576,18 +1614,68 @@ function renderGuide(){const t=P.t,d=P.diet,kc=t.noCal?null:t.kcal;
  <div class="card"><h2>🏋️ Weekly workout</h2><table>${days.map(x=>`<tr><td><b>${x[0]}</b></td><td>${x[1]}</td></tr>`).join('')}</table><div class="tiny muted" style="margin-top:6px">Every day reach ${fmt(t.steps)} steps gradually. Do a 5 min warm-up before workouts.</div><button class="btn sec sm" style="margin-top:8px" onclick="go('ex')">See exercise demos →</button></div>`}
 
 // ================= SETTINGS =================
-function renderSettings(){applyTheme(S.get('theme','dark'));const t=P.t;$('profSum').innerHTML=`<table><tr><td>Diet</td><td>${DIETNAME[P.diet]}</td></tr><tr><td>Body</td><td>${P.sex==='m'?'Male':'Female'}, ${P.age} years, ${P.h} cm, ${P.w} kg</td></tr><tr><td>Goal</td><td>${{lose:'Lose weight',keep:'Maintain',gain:'Gain weight'}[t.goal]}${t.goal!=='keep'?` → ${P.tw} kg`:''}</td></tr><tr><td>Targets</td><td>${t.noCal?'Calorie hidden':fmt(t.kcal)+' kcal'} · P ${t.p} g · C ${t.c} g · F ${t.f} g</td></tr><tr><td>Allergy</td><td>${esc(P.allergies.join(', ')||'None')}</td></tr><tr><td>Health</td><td>${esc(P.cond.map(condName).concat(P.condOther||[]).join(', ')||'Nothing mentioned')}</td></tr><tr><td>Likes / dislikes</td><td>${esc((P.likes||[]).join(', ')||'—')} / ${esc((P.dislikes||[]).join(', ')||'—')}</td></tr><tr><td>Routine</td><td>Wake ${P.wake||'—'}, sleep ${P.sleep||'—'}${P.blood?', blood group '+P.blood:''}</td></tr></table>`;$('expOut').classList.add('hide')}
+function renderSettings(){applyTheme(S.get('theme','dark'));renderAcct();const t=P.t;$('profSum').innerHTML=`<table><tr><td>Diet</td><td>${DIETNAME[P.diet]}</td></tr><tr><td>Body</td><td>${P.sex==='m'?'Male':'Female'}, ${P.age} years, ${P.h} cm, ${P.w} kg</td></tr><tr><td>Goal</td><td>${{lose:'Lose weight',keep:'Maintain',gain:'Gain weight'}[t.goal]}${t.goal!=='keep'?` → ${P.tw} kg`:''}</td></tr><tr><td>Targets</td><td>${t.noCal?'Calorie hidden':fmt(t.kcal)+' kcal'} · P ${t.p} g · C ${t.c} g · F ${t.f} g</td></tr><tr><td>Allergy</td><td>${esc(P.allergies.join(', ')||'None')}</td></tr><tr><td>Health</td><td>${esc(P.cond.map(condName).concat(P.condOther||[]).join(', ')||'Nothing mentioned')}</td></tr><tr><td>Likes / dislikes</td><td>${esc((P.likes||[]).join(', ')||'—')} / ${esc((P.dislikes||[]).join(', ')||'—')}</td></tr><tr><td>Routine</td><td>Wake ${P.wake||'—'}, sleep ${P.sleep||'—'}${P.blood?', blood group '+P.blood:''}</td></tr></table>`;$('expOut').classList.add('hide')}
 document.querySelectorAll('#themeChips .chip').forEach(c=>c.onclick=()=>{applyTheme(c.dataset.th);refreshCur()});
 if(window.matchMedia)matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>{if(S.get('theme','dark')==='auto'){applyTheme('auto');refreshCur()}});
 $('expBtn').onclick=async()=>{const data=JSON.stringify({profile:P,log,weights,custom,pAcc,workouts,measures},null,1);$('expOut').value=data;$('expOut').classList.remove('hide');try{await navigator.clipboard.writeText(data);toast('Copied — save it somewhere')}catch(e){$('expOut').select();toast('Text selected — copy it')}};
-$('resetBtn').onclick=()=>{openSheet(`<h2>Delete all data?</h2><div class="small muted">Profile, food, weight, chat — everything will be erased from this browser. It can’t be undone.</div><div class="row" style="margin-top:14px"><button class="btn ghost" onclick="closeSheet()">No</button><button class="btn danger" id="resetYes">Yes, delete</button></div>`);$('resetYes').onclick=()=>{['profile2','profile','log','weights','custom','pAcc','pRej','chat','diet','chart','workouts','measures'].forEach(S.del);location.reload()}};
+$('resetBtn').onclick=()=>{openSheet(`<h2>Delete all data?</h2><div class="small muted">Profile, food, weight, chat — everything will be erased from this browser${TOKEN_()?' and your FitMentor account will be deleted':''}. It can’t be undone.</div><div class="row" style="margin-top:14px"><button class="btn ghost" onclick="closeSheet()">No</button><button class="btn danger" id="resetYes">Yes, delete</button></div>`);$('resetYes').onclick=async()=>{if(TOKEN_()){try{await api('/api/me',{method:'DELETE'})}catch(e){}}['profile2','profile','log','weights','custom','pAcc','pRej','chat','diet','chart','workouts','measures','token','acct','syncAt','changedAt'].forEach(S.del);location.reload()}};
 
+
+
+// ================= ACCOUNT: login + cloud save =================
+const SYNC_KEYS=['profile2','log','weights','custom','pAcc','pRej','chat','chart','workouts','measures','theme','diet'];
+const TOKEN_=()=>S.get('token',null);
+async function api(path,opts={},ms=30000){const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),ms);const h={'Content-Type':'application/json'};const t=TOKEN_();if(t)h.Authorization='Bearer '+t;
+ try{const r=await fetch(AI_SERVER+path,{...opts,headers:h,signal:ctl.signal});const d=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(d.error||'HTTP '+r.status);e.status=r.status;throw e}return d}finally{clearTimeout(tm)}}
+function collectData(){const d={};SYNC_KEYS.forEach(k=>{try{const v=localStorage.getItem('fm_'+k);if(v!=null)d[k]=JSON.parse(v)}catch(e){}});return d}
+function applyData(d){SYNC_KEYS.forEach(k=>{if(d&&d[k]!==undefined){try{localStorage.setItem('fm_'+k,JSON.stringify(d[k]))}catch(e){}}})}
+let pushT=null;
+function schedulePush(){if(!TOKEN_())return;clearTimeout(pushT);pushT=setTimeout(pushNow,1500)}
+async function pushNow(){if(!TOKEN_())return;try{const r=await api('/api/data',{method:'PUT',body:JSON.stringify({data:collectData()})});S._raw('syncAt',r.updated)}catch(e){if(e.status===401)signOut(true)}}
+// hook every save
+{const orig=S.set.bind(S);S._raw=(k,v)=>orig(k,v);S.set=(k,v)=>{orig(k,v);if(SYNC_KEYS.includes(k)){orig('changedAt',Date.now());schedulePush()}}}
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&pushT){clearTimeout(pushT);pushNow()}});
+let authMode='up',gisLoaded=false;
+function setAuthMode(m){authMode=m;document.querySelectorAll('#authTabs button').forEach(b=>b.classList.toggle('on',b.dataset.a===m));$('authTitle').textContent=m==='up'?'Create your account':'Welcome back';$('nameRow').classList.toggle('hide',m!=='up');$('authGo').textContent=m==='up'?'Create account':'Sign in';$('aPw').autocomplete=m==='up'?'new-password':'current-password';$('pwHint').classList.toggle('hide',m!=='up');$('authErr').textContent=''}
+document.querySelectorAll('#authTabs button').forEach(b=>b.onclick=()=>setAuthMode(b.dataset.a));
+$('authBack').onclick=()=>go('hero');
+$('authRetry').onclick=()=>renderAuth();
+$('authSkip').onclick=()=>{startOnb()};
+async function renderAuth(){setAuthMode(authMode);$('authConn').classList.remove('hide');$('authConn').textContent='Connecting to FitMentor… (the first time can take up to a minute)';$('authOffline').classList.add('hide');$('authForm').classList.add('hide');$('gWrap').classList.add('hide');
+ let cfg=null;try{cfg=await api('/api/config',{},60000)}catch(e){}
+ $('authConn').classList.add('hide');
+ if(!cfg||!cfg.login){$('authOffline').classList.remove('hide');$('authOfflineTxt').textContent=cfg?'Accounts are being set up and will open soon. For now you can start without an account — your data stays on this device.':'Can’t reach the FitMentor server right now. You can try again, or start without an account (your data will stay only on this device).';return}
+ $('authForm').classList.remove('hide');
+ if(cfg.google_client_id)loadGoogle(cfg.google_client_id);
+}
+function loadGoogle(cid){const init=()=>{try{google.accounts.id.initialize({client_id:cid,callback:async r=>{$('authErr').textContent='';try{onAuthed(await api('/api/auth/google',{method:'POST',body:JSON.stringify({credential:r.credential})}))}catch(e){$('authErr').textContent=e.message||'Google sign-in failed.'}}});google.accounts.id.renderButton($('gBtn'),{theme:document.documentElement.dataset.theme==='light'?'outline':'filled_black',size:'large',shape:'pill',text:'continue_with',width:300});$('gWrap').classList.remove('hide')}catch(e){}};
+ if(gisLoaded&&window.google){init();return}const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.onload=()=>{gisLoaded=true;init()};document.head.appendChild(sc)}
+$('authForm').onsubmit=async e=>{e.preventDefault();const email=$('aEmail').value.trim(),pw=$('aPw').value,name=$('aName').value.trim();
+ if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$('authErr').textContent='Please enter a valid email.';return}
+ if(authMode==='up'&&pw.length<8){$('authErr').textContent='Password must be at least 8 characters.';return}
+ if(!pw){$('authErr').textContent='Enter your password.';return}
+ $('authErr').textContent='';$('authGo').disabled=true;$('authGo').textContent='Please wait…';
+ try{onAuthed(await api(authMode==='up'?'/api/auth/register':'/api/auth/login',{method:'POST',body:JSON.stringify({email,password:pw,name})}))}
+ catch(err){$('authErr').textContent=err.name==='AbortError'?'Server is taking too long. Try again.':err.message;if(err.status===409)setAuthMode('in')}
+ finally{$('authGo').disabled=false;$('authGo').textContent=authMode==='up'?'Create account':'Sign in'}};
+async function onAuthed(r){S._raw('token',r.token);S._raw('acct',{email:r.user.email,name:r.user.name,google:r.user.google});
+ const sd=r.user.data||{};
+ if(sd.profile2){applyData(sd);S._raw('syncAt',r.user.updated);S._raw('changedAt',r.user.updated);location.reload();return}
+ if(P){await pushNow();toast('Signed in — your data is now saved to your account');go('home');return}
+ if(r.user.name&&!S.get('profile2',null))S._raw('preName',r.user.name);
+ startOnb()}
+async function bootSync(){if(!TOKEN_())return;try{const r=await api('/api/me',{},60000);const u=r.user,changed=S.get('changedAt',0),sync=S.get('syncAt',0);
+  if(u.data&&u.data.profile2&&u.updated>sync&&u.updated>changed){applyData(u.data);S._raw('syncAt',u.updated);S._raw('changedAt',u.updated);location.reload();return}
+  if(changed>sync)pushNow()}catch(e){if(e.status===401)signOut(true)}}
+function signOut(expired){['token','acct','syncAt','changedAt'].forEach(S.del);SYNC_KEYS.forEach(S.del);['profile','preName'].forEach(S.del);if(expired)try{sessionStorage.setItem('fm_expired','1')}catch(e){}location.reload()}
+function renderAcct(){const a=S.get('acct',null);$('acctCard').innerHTML=TOKEN_()&&a?`<h2>Account</h2><div class="small">Signed in as <b>${esc(a.email||'')}</b>${a.google?' (Google)':''}</div><div class="small muted" style="margin-top:4px">Your data is saved to your account and syncs across devices.</div><div class="row" style="margin-top:12px"><button class="btn ghost" id="signOutBtn">Sign out</button></div>`:`<h2>Account</h2><div class="small muted">You are not signed in, so your data lives only in this browser.</div><button class="btn sec" style="margin-top:10px" id="signInBtn">Create account / sign in</button>`;
+ const so=$('signOutBtn');if(so)so.onclick=async()=>{if(pushT){clearTimeout(pushT);await pushNow()}signOut()};const si=$('signInBtn');if(si)si.onclick=()=>go('auth')}
 
 // ================= LANDING HERO (Three.js, lazy) =================
 let H3=null,heroIO=null;
 function webglOK(){try{const c=document.createElement('canvas');return !!(window.WebGLRenderingContext&&(c.getContext('webgl2')||c.getContext('webgl')))}catch(e){return false}}
 function renderHero(){
- $('heroStart').onclick=$('heroStart2').onclick=()=>startOnb();
+ $('heroStart').onclick=$('heroStart2').onclick=()=>{if(TOKEN_())startOnb();else go('auth')};
  $('heroMore').onclick=()=>$('heroFeat').scrollIntoView({behavior:'smooth'});
  const cards=[...document.querySelectorAll('#heroFeat .card')];
  if('IntersectionObserver' in window){if(heroIO)heroIO.disconnect();heroIO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');heroIO.unobserve(e.target)}}),{threshold:.15});cards.forEach((c,i)=>{c.style.transitionDelay=(i*80)+'ms';heroIO.observe(c)})}else cards.forEach(c=>c.classList.add('in'));
@@ -1601,28 +1689,47 @@ function buildHero(T,reduce){
  const stage=$('heroStage'),mob=window.innerWidth<700;
  const R=new T.WebGLRenderer({antialias:!mob,alpha:true,powerPreference:'high-performance'});R.setPixelRatio(Math.min(devicePixelRatio||1,mob?1.5:1.75));R.outputColorSpace=T.SRGBColorSpace;R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.15;
  stage.appendChild(R.domElement);
- const sc=new T.Scene(),cam=new T.PerspectiveCamera(32,1,.1,100);cam.position.set(0,0,mob?13:11.5);
+ const sc=new T.Scene(),cam=new T.PerspectiveCamera(32,1,.1,100);cam.position.set(0,0,mob?14:12);
  // simple studio environment for metal reflections
  const pm=new T.PMREMGenerator(R),env=new T.Scene();env.background=new T.Color(0x0a0e12);
  const pan=(c,x,y,z,w,h)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color:c,side:T.DoubleSide}));m.position.set(x,y,z);m.lookAt(0,0,0);env.add(m)};
  pan(0x2ee6f0,-6,3,4,6,3);pan(0xffffff,5,5,2,5,2);pan(0xc4f25a,4,-4,-3,4,2);pan(0xff9a4a,-5,-3,-4,3,2);pan(0x9fb1be,0,8,0,10,2);
  sc.environment=pm.fromScene(env,.04).texture;
- const metal=new T.MeshStandardMaterial({color:0xd9e3e8,metalness:1,roughness:.22});
- const dark=new T.MeshStandardMaterial({color:0x1b252d,metalness:.9,roughness:.3});
- const rim=new T.MeshStandardMaterial({color:0x2ee6f0,emissive:0x2ee6f0,emissiveIntensity:.9,metalness:.2,roughness:.4});
- const g=new T.Group();
- const bar=new T.Mesh(new T.CylinderGeometry(.16,.16,4.6,40),metal);bar.rotation.z=Math.PI/2;g.add(bar);
- const grip=new T.Mesh(new T.CylinderGeometry(.19,.19,1.6,40),dark);grip.rotation.z=Math.PI/2;g.add(grip);
- for(let i=-6;i<=6;i++){const k=new T.Mesh(new T.TorusGeometry(.19,.012,8,40),metal);k.rotation.y=Math.PI/2;k.position.x=i*.12;g.add(k)}
- [-1,1].forEach(sd=>{[[1.5,.95,.28],[1.82,.78,.22],[2.08,.6,.18]].forEach(([x,r,w],j)=>{const p=new T.Mesh(new T.CylinderGeometry(r,r,w,64,1),dark);p.rotation.z=Math.PI/2;p.position.x=sd*x;g.add(p);const ring=new T.Mesh(new T.TorusGeometry(r-.02,.018,12,80),j===0?rim:metal);ring.rotation.y=Math.PI/2;ring.position.x=sd*(x+sd*w/2);g.add(ring)});const col=new T.Mesh(new T.CylinderGeometry(.24,.24,.16,32),metal);col.rotation.z=Math.PI/2;col.position.x=sd*1.27;g.add(col)});
- g.rotation.set(.35,-.5,.12);sc.add(g);
+ // ---- transformation figure: heavier -> fitter (abstract, no numbers) ----
+ const skin=new T.MeshPhysicalMaterial({color:0x8fdfe8,metalness:.35,roughness:.22,clearcoat:1,clearcoatRoughness:.15,emissive:0x0b3a40,emissiveIntensity:.35});
+ const g=new T.Group(),base=new T.Group();g.add(base);
+ const FIT=[[0,.4],[.25,.38],[.6,.31],[.95,.38],[1.3,.54],[1.6,.64],[1.82,.6],[2.0,.34],[2.08,.14]];
+ const HVY=[[0,.66],[.25,.82],[.6,.98],[.95,.94],[1.3,.78],[1.6,.66],[1.82,.58],[2.0,.4],[2.08,.17]];
+ const prof=P=>[new T.Vector2(0,-.05)].concat(P.map(([y,r])=>new T.Vector2(r,y))).concat([new T.Vector2(0,2.12)]);
+ const gFit=new T.LatheGeometry(prof(FIT),48),gHvy=new T.LatheGeometry(prof(HVY),48);
+ const torsoGeo=gHvy.clone(),pF=gFit.attributes.position.array,pH=gHvy.attributes.position.array;
+ const torso=new T.Mesh(torsoGeo,skin);base.add(torso);
+ const head=new T.Mesh(new T.SphereGeometry(.3,32,24),skin);head.position.y=2.5;base.add(head);
+ const neck=new T.Mesh(new T.CylinderGeometry(.13,.15,.25,20),skin);neck.position.y=2.18;base.add(neck);
+ const rimM=new T.MeshBasicMaterial({color:0x2ee6f0,transparent:true,opacity:.18,side:T.BackSide});
+ const addRim=m=>{const r=new T.Mesh(m.geometry,rimM);r.scale.setScalar(1.06);m.add(r);return m};
+ addRim(torso);addRim(head);
+ const part=(geo,x,y,rz=0)=>{const m=addRim(new T.Mesh(geo,skin));m.position.set(x,y,0);m.rotation.z=rz;base.add(m);return m};
+ const cap=(r,l)=>new T.CapsuleGeometry(r,l,8,20);
+ const L=[-1,1].map(sd=>({sd,sh:part(new T.SphereGeometry(.2,24,16),sd*.62,1.82),ua:part(cap(.095,.62),sd*.72,1.38,sd*.1),fa:part(cap(.08,.6),sd*.78,.68,sd*.05),hd:part(new T.SphereGeometry(.1,16,12),sd*.8,.25),th:part(cap(.155,.85),sd*.26,-.55),cf:part(cap(.105,.8),sd*.26,-1.55),ft:part(new T.SphereGeometry(.13,16,10),sd*.26,-2.02)}));
+ L.forEach(o=>{o.ft.scale.set(1,.5,1.6)});
+ let morphK=-1;
+ function morph(k){if(Math.abs(k-morphK)<.002)return;morphK=k;const out=torsoGeo.attributes.position.array;for(let i=0;i<out.length;i++)out[i]=pH[i]+(pF[i]-pH[i])*k;torsoGeo.attributes.position.needsUpdate=true;torsoGeo.computeVertexNormals();
+  torso.scale.z=.95-.42*k;
+  L.forEach(o=>{const sd=o.sd,w=1-k;
+   o.sh.position.x=sd*.64;o.sh.scale.setScalar(.85+.2*k);
+   o.ua.scale.set(1.45-.35*w*0+(.0),1,1.45-.0);o.ua.scale.set(1+.75*w,1,1+.75*w);o.ua.position.x=sd*(.72+.16*w);o.ua.rotation.z=sd*(.1+.14*w);
+   o.fa.scale.set(1+.6*w,1,1+.6*w);o.fa.position.x=sd*(.76+.24*w);o.hd.position.x=sd*(.78+.28*w);
+   o.th.scale.set(1+.85*w,1,1+.85*w);o.th.position.x=sd*(.21+.15*w);o.cf.scale.set(1+.6*w,1,1+.6*w);o.cf.position.x=sd*(.21+.12*w);o.ft.position.x=sd*(.21+.12*w)})}
+ base.position.y=.15;
+ g.rotation.set(.05,-.3,0);sc.add(g);
  // nutrient particles orbiting (protein / carbs / fat)
  const cols=[0x2ee6f0,0xc4f25a,0xff9a4a],N=mob?54:90,orbs=[];
- cols.forEach((c,ci)=>{const geo=new T.SphereGeometry(1,12,12),mat=new T.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:1.4,roughness:.4});const im=new T.InstancedMesh(geo,mat,N/3);const data=[];for(let i=0;i<N/3;i++)data.push({r:2.2+Math.random()*.9+ci*.2,a:Math.random()*Math.PI*2,y:(Math.random()-.5)*1.8,s:.014+Math.random()*.028,v:(.12+Math.random()*.18)*(ci%2?1:-1),tilt:ci*.5-.4});orbs.push({im,data});sc.add(im)});
- const glow=new T.PointLight(0x2ee6f0,30,12);glow.position.set(-3,2,3);sc.add(glow);const glow2=new T.PointLight(0xc4f25a,16,10);glow2.position.set(3,-2,2);sc.add(glow2);
- sc.add(new T.AmbientLight(0xffffff,.25));
+ cols.forEach((c,ci)=>{const geo=new T.SphereGeometry(1,12,12),mat=new T.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:1.4,roughness:.4});const im=new T.InstancedMesh(geo,mat,N/3);const data=[];for(let i=0;i<N/3;i++)data.push({r:2.9+Math.random()*.9+ci*.2,a:Math.random()*Math.PI*2,y:(Math.random()-.5)*1.8,s:.014+Math.random()*.028,v:(.12+Math.random()*.18)*(ci%2?1:-1),tilt:ci*.5-.4});orbs.push({im,data});sc.add(im)});
+ const glow=new T.PointLight(0x2ee6f0,10,12);glow.position.set(-4,1,3);sc.add(glow);const glow2=new T.PointLight(0xc4f25a,5,10);glow2.position.set(4,-2,2);sc.add(glow2);
+ const key=new T.DirectionalLight(0xfff4e6,2.6);key.position.set(-2,6,5);sc.add(key);const fill=new T.HemisphereLight(0xffffff,0x202830,.9);sc.add(fill);
  const dummy=new T.Object3D();let tx=0,ty=0,rx=0,ry=0,drag=null,spin=0,raf=0,run=false,vis=true,scrollP=0;
- const size=()=>{const w=stage.clientWidth||innerWidth,h=stage.clientHeight||innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();const right=w>900;g.position.x=right?2.4:0;g.position.y=right?0:(mob?1.7:.8);orbs.forEach(o=>o.im.position.copy(g.position))};
+ const size=()=>{const w=stage.clientWidth||innerWidth,h=stage.clientHeight||innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();const right=w>900;g.position.x=right?2.4:0;g.position.y=right?-.1:(mob?1.5:.8);orbs.forEach(o=>o.im.position.copy(g.position))};
  size();addEventListener('resize',size);
  const onMove=e=>{const p=e.touches?e.touches[0]:e;const x=p.clientX/innerWidth*2-1,y=p.clientY/innerHeight*2-1;if(drag){spin+=(p.clientX-drag)*.008;drag=p.clientX}tx=x*.45;ty=y*.3};
  addEventListener('pointermove',onMove,{passive:true});
@@ -1631,8 +1738,8 @@ function buildHero(T,reduce){
  if('IntersectionObserver' in window)new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis&&run&&!raf)loop()}).observe(stage);
  const clock=new T.Clock();
  function frame(){const t=clock.getElapsedTime();
-  if(!reduce)spin+=.0035;rx+=(ty-rx)*.05;ry+=(tx-ry)*.05;
-  g.rotation.y=-.35+Math.sin(spin)*.55+ry;g.rotation.x=.35+rx+Math.sin(t*.6)*.04;g.position.z=-scrollP*4;const sc2=(stage.clientWidth<700?.58:1)*(1-scrollP*.25);g.scale.setScalar(sc2);
+  if(!reduce)spin+=.004;rx+=(ty-rx)*.05;ry+=(tx-ry)*.05;
+  base.rotation.y=spin;g.rotation.y=-.2+ry*.8;g.rotation.x=.05+rx*.3;{const cyc=(t%12)/12;let k=cyc<.15?0:cyc<.5?(cyc-.15)/.35:cyc<.72?1:cyc<.92?1-(cyc-.72)/.2:0;k=k*k*(3-2*k);if(reduce)k=1;morph(k);const lab=document.getElementById('morphLab');if(lab){const on=k>.5;if(lab.dataset.on!==String(on)){lab.dataset.on=String(on);lab.textContent=on?'Your goal':'Today'}}}g.position.z=-scrollP*4;const sc2=(stage.clientWidth<700?.62:.9)*(1-scrollP*.25);g.scale.setScalar(sc2);
   orbs.forEach(o=>{o.im.position.copy(g.position);o.data.forEach((d,i)=>{const a=d.a+(reduce?0:t*d.v);dummy.position.set(Math.cos(a)*d.r,d.y+Math.sin(a*2+i)*.15,Math.sin(a)*d.r*.55);dummy.position.applyAxisAngle(new T.Vector3(0,0,1),d.tilt);dummy.scale.setScalar(d.s*(1+.25*Math.sin(t*2+i)));dummy.updateMatrix();o.im.setMatrixAt(i,dummy.matrix)});o.im.instanceMatrix.needsUpdate=true;o.im.scale.setScalar(sc2)});
   R.domElement.style.opacity=String(1-scrollP*.85);R.render(sc,cam)}
  function loop(){if(!run||!vis){raf=0;return}frame();raf=requestAnimationFrame(loop)}
@@ -1641,6 +1748,7 @@ function buildHero(T,reduce){
 
 // ================= boot =================
 if(P){['likes','dislikes','condOther','skipped'].forEach(k=>{if(!Array.isArray(P[k]))P[k]=[]});P.wake=P.wake||'07:00';P.sleep=P.sleep||'23:00';P.grain=P.grain||'';P.blood=P.blood||'';P.name=P.name||'';if(!P.start)P.start={date:today(),w:P.w};P.cond=P.cond.filter(c=>condList(P.sex).some(x=>x[0]===c));P.t=computeTargets(P);go('home')}else go('hero');
+bootSync();try{if(sessionStorage.getItem('fm_expired')){sessionStorage.removeItem('fm_expired');toast('Please sign in again')}}catch(e){}
 </script>
 </body>
 </html>
