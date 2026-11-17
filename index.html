@@ -744,12 +744,22 @@ function totals(d){const f=dayLog(d).food;return{k:sum(f,'k'),p:sum(f,'p'),c:sum
 
 // ================= AI (platform capabilities) =================
 let AI=null,AIimg=false,DICT=null;
-(async()=>{try{if(window.claude&&claude.use){AI=await claude.use('sample');if(AI){try{AIimg=!!(await AI.limits()).images}catch(e){AIimg=false}}DICT=await claude.use('dictation');if(DICT)$('micBtn').classList.remove('hide')}}catch(e){}refreshAIstate()})();
+const AI_SERVER='https://fitnessdiet-ai.onrender.com';
+function blobB64(b){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(b)})}
+function serverAI(){const f=async(input,opts={})=>{const body={tier:{quick:'quick',complex:'complex'}[opts.modelTier]||'default'};
+ if(Array.isArray(input))body.messages=input.map(m=>({role:m.role,content:typeof m.content==='string'?m.content:String(m.content||'')}));else body.prompt=String(input);
+ if(opts.images&&opts.images.length)body.images=await Promise.all(opts.images.map(async b=>({media:b.type||'image/jpeg',data:await blobB64(b)})));
+ const slow=setTimeout(()=>toast('Waking up the AI server… this can take up to a minute the first time.'),6000);
+ let r;try{r=await fetch(AI_SERVER+'/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})}catch(e){clearTimeout(slow);throw{code:'network'}}
+ clearTimeout(slow);const d=await r.json().catch(()=>({}));
+ if(r.status===429)throw{code:'rate_limited'};if(r.status===503)throw{code:'off'};if(!r.ok||!d.text)throw{code:'server',msg:d.error};
+ if(opts.onText)try{opts.onText({text:d.text})}catch(e){}return{text:d.text}};return f}
+(async()=>{try{if(window.claude&&claude.use){AI=await claude.use('sample');if(AI){try{AIimg=!!(await AI.limits()).images}catch(e){AIimg=false}}DICT=await claude.use('dictation');if(DICT)$('micBtn').classList.remove('hide')}else if(/^https?:/.test(location.protocol)){AI=serverAI();AIimg=true;fetch(AI_SERVER+'/health').catch(()=>{})}}catch(e){}refreshAIstate()})();
 function refreshAIstate(){['descGo','chatSend','planGo'].forEach(id=>{const b=$(id);if(b)b.title=AI?'':'AI isn’t available in this view'});$('photoGo').disabled=!(AI&&AIimg&&photoBlob)}
-const AI_OFF='AI isn’t available here. Open this app on claude.ai while signed in. Meanwhile you can log with Search and Recent.';
+const AI_OFF='AI isn’t available right now. Meanwhile you can log with Search and Recent.';
 function parseJSON(t){if(t&&typeof t==='object')return t;const m=String(t||'').match(/\{[\s\S]*\}/);if(!m)throw new Error('bad json');return JSON.parse(m[0])}
 async function askJSON(prompt,opts={}){if(!AI)throw{code:'off'};let out;if(AI.json){try{out=await AI.json(prompt,opts);return parseJSON(out)}catch(e){if(e&&e.code)throw e}}const r=await AI(prompt,opts);return parseJSON(r.text)}
-function aiErr(e){if(!e)return'Something went wrong. Please try again.';if(e.code==='off')return AI_OFF;if(e.code==='not_granted')return'AI permission wasn’t given. You can log with Search.';if(e.code==='rate_limited')return'Too many requests right now. Please try again in a little while.';return'No reply from the AI. Try again, or use Search.'}
+function aiErr(e){if(!e)return'Something went wrong. Please try again.';if(e.code==='off')return AI_OFF;if(e.code==='not_granted')return'AI permission wasn’t given. You can log with Search.';if(e.code==='rate_limited')return'Too many requests right now. Please try again in a little while.';if(e.code==='network')return'Couldn’t reach the AI server. Check your internet and try again.';if(e.code==='server'&&e.msg)return e.msg;return'No reply from the AI. Try again, or use Search.'}
 function profileText(){if(!P)return'No profile yet.';const t=P.t;return `Profile: ${P.sex==='m'?'male':'female'}, ${P.age} y, ${P.h} cm, ${P.w} kg, goal ${P.goal} (target ${P.tw} kg), diet ${DIETNAME[P.diet]}, cuisine ${P.cuisine}, budget Rs ${P.budget}/day, cooking time ${P.cook}, allergies: ${P.allergies.join(', ')||'none'}, health conditions: ${P.cond.map(condName).concat(P.condOther||[]).join(', ')||'none'}, likes: ${(P.likes||[]).join(', ')||'-'}, dislikes: ${(P.dislikes||[]).join(', ')||'-'}. Targets: ${t.noCal?'calorie targets hidden for safety':t.kcal+' kcal'}, protein ${t.p} g, carbs ${t.c} g, fat ${t.f} g, water ${t.water} L, steps ${t.steps}.`}
 const SAFETY_RULES=`Rules: You are FitMentor, a friendly diet and gym mentor for Indian users. Reply in simple, friendly English that a beginner can follow (use Indian food names like roti, dal, katori), short (max ~120 words), with one clear next step. Never diagnose, never suggest medicines or supplements doses, never suggest eating below the user's calorie target or fasting for long. If the question involves pregnancy, a medical condition, eating disorders, self-harm, or a minor, gently say to consult a doctor or registered dietitian. Respect diet type and allergies strictly. Never shame the user.`;
 
@@ -1045,7 +1055,7 @@ async function sendChat(){const q=$('chatIn').value.trim();if(!q)return;if(!AI){
  const T=totals(),L=dayLog(),s=weekStats();
  const ctx=`${SAFETY_RULES}\n${profileText()}\nToday (${curDay()}): ${L.food.length?L.food.map(x=>`${x.n} ${x.lbl||''} ${r0(x.k)}kcal P${r0(x.p)}`).join('; '):'nothing logged yet'}. Totals ${r0(T.k)} kcal, protein ${r0(T.p)} g. Water ${L.water} glasses, steps ${L.steps}.\nLast 7 days: logged ${s.logged} days, avg ${r0(s.avgK)} kcal, avg protein ${r0(s.avgP)} g. Weight trend: ${s.wNow&&s.wBefore?r1(s.wNow-s.wBefore)+' kg vs previous week':'not enough data'}.`;
  const hist=chat.slice(0,-1).slice(-8).map(m=>({role:m.role,content:m.content}));while(hist.length&&hist[0].role!=='user')hist.shift();hist[0]={role:'user',content:ctx+'\n\nUser: '+hist[0].content};
- try{const r=await AI(hist,{cache:false,modelTier:'default',onText:({text})=>{chat[chat.length-1].content=text;drawChat()}});chat[chat.length-1].content=r.text||'(khaali jawab)';}
+ try{const r=await AI(hist,{cache:false,modelTier:'default',onText:({text})=>{chat[chat.length-1].content=text;drawChat()}});chat[chat.length-1].content=r.text||'(empty reply)';}
  catch(e){chat.pop();chat.pop();$('chatIn').value=q;$('chatErr').textContent=aiErr(e)}
  S.set('chat',chat.slice(-30));drawChat();$('chatSend').disabled=false;$('chat').lastElementChild&&$('chat').lastElementChild.scrollIntoView({block:'nearest'})}
 $('chatSend').onclick=sendChat;$('chatIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}});
