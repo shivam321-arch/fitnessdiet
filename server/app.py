@@ -8,6 +8,9 @@ import os
 import re
 import time
 import datetime
+import secrets
+import hmac
+import hashlib
 import requests
 from flask import Flask, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -38,15 +41,14 @@ _MPW = os.environ.get("MONGODB_PASSWORD", "").strip()
 if _MPW and "<db_password>" in MONGODB_URI:
     from urllib.parse import quote_plus
     MONGODB_URI = MONGODB_URI.replace("<db_password>", quote_plus(_MPW))
-# (setup check: sirf lambai/format log karta hai, password nahi)
-try:
-    _m = re.match(r"^mongodb\+srv://([^:]+):(.*)@([^/?]+)", MONGODB_URI)
-    print("DB config check:", {"has_uri": bool(MONGODB_URI), "user": _m.group(1) if _m else None, "pw_len": len(_m.group(2)) if _m else None, "placeholder_left": "<db_password>" in MONGODB_URI, "host": _m.group(3) if _m else None, "separate_pw_len": len(_MPW), "separate_pw_special": bool(re.search(r"[^A-Za-z0-9]", _MPW))}, flush=True)
-except Exception as _e:
-    print("DB config check failed", _e, flush=True)
 SECRET_KEY = os.environ.get("SECRET_KEY", "").strip()          # lamba random text, sirf Render me
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
 TOKEN_DAYS = 60
+
+# OTP email (Brevo). Render free par Gmail SMTP band hai, isliye Brevo ki HTTP API use karte hain.
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "").strip()
+MAIL_FROM = os.environ.get("MAIL_FROM", "").strip()            # Brevo me verify kiya hua sender email
+EMAIL_OTP = bool(BREVO_API_KEY and MAIL_FROM)
 
 # ---------- 2. Kaunse Claude models try karne hain (pehla na chale to agla) ----------
 def unique(items):
@@ -304,7 +306,101 @@ EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 @app.get("/api/config")
 def config():
-    return jsonify(login=users_col() is not None and bool(SECRET_KEY), google_client_id=GOOGLE_CLIENT_ID)
+    return jsonify(login=users_col() is not None and bool(SECRET_KEY), google_client_id=GOOGLE_CLIENT_ID,
+                   email_otp=EMAIL_OTP)
+
+
+# ---------- OTP (email par 6 number ka code) ----------
+_otps = None
+def otps_col():
+    global _otps
+    if _otps is None and users_col() is not None:
+        _otps = users_col().database["otps"]
+        _otps.create_index("exp", expireAfterSeconds=0)   # purane code MongoDB khud mita deta hai
+    return _otps
+
+def otp_hash(email, purpose, code):
+    return hmac.new(SECRET_KEY.encode(), f"{purpose}:{email}:{code}".encode(), hashlib.sha256).hexdigest()
+
+def send_mail(to, subject, html, text):
+    r = requests.post("https://api.brevo.com/v3/smtp/email", timeout=15,
+                      headers={"api-key": BREVO_API_KEY, "accept": "application/json"},
+                      json={"sender": {"name": "FitMentor", "email": MAIL_FROM}, "to": [{"email": to}],
+                            "subject": subject, "htmlContent": html, "textContent": text})
+    if not r.ok:
+        print("Brevo error:", r.status_code, r.text[:300], flush=True)
+        raise RuntimeError("mail failed")
+
+def check_otp(email, purpose, code):
+    """Code sahi hai to True (aur code use ho gaya, dobara nahi chalega)."""
+    col = otps_col()
+    doc = col.find_one({"email": email, "purpose": purpose})
+    if not doc or doc.get("tries", 0) >= 5 or doc["exp"] < datetime.datetime.utcnow():
+        return False
+    if not hmac.compare_digest(doc["hash"], otp_hash(email, purpose, str(code).strip())):
+        col.update_one({"_id": doc["_id"]}, {"$inc": {"tries": 1}})
+        return False
+    col.delete_one({"_id": doc["_id"]})
+    return True
+
+@app.route("/api/auth/otp", methods=["POST", "OPTIONS"])
+def send_otp():
+    if request.method == "OPTIONS":
+        return "", 204
+    bad = need_db()
+    if bad: return bad
+    if not EMAIL_OTP:
+        return jsonify(error="Email codes are not set up yet."), 503
+    b = request.get_json(silent=True) or {}
+    email = str(b.get("email", "")).strip().lower()
+    purpose = "reset" if b.get("purpose") == "reset" else "signup"
+    if not EMAIL_RE.match(email):
+        return jsonify(error="Please enter a valid email."), 400
+    ip = (request.headers.get("X-Forwarded-For") or request.remote_addr or "").split(",")[0].strip()
+    if too_many("otpip:" + ip, 15, 3600) or too_many("otpmail:" + email, 5, 3600):
+        return jsonify(error="Too many codes requested. Try again after some time."), 429
+    u = users_col().find_one({"email": email})
+    if purpose == "signup" and u and (u.get("pw") or u.get("google_sub")):
+        return jsonify(error="An account with this email already exists. Please sign in."), 409
+    if purpose == "reset" and not u:
+        return jsonify(ok=True)   # kisi ko pata na chale ki email registered hai ya nahi
+    old = otps_col().find_one({"email": email, "purpose": purpose})
+    if old and time.time() - old.get("sent", 0) < 45:
+        return jsonify(error="Please wait a few seconds before asking for a new code."), 429
+    code = f"{secrets.randbelow(1000000):06d}"
+    otps_col().update_one({"email": email, "purpose": purpose}, {"$set": {
+        "hash": otp_hash(email, purpose, code), "tries": 0, "sent": time.time(),
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=10)}}, upsert=True)
+    what = "create your FitMentor account" if purpose == "signup" else "reset your FitMentor password"
+    try:
+        send_mail(email, f"{code} is your FitMentor code",
+                  f"<div style='font-family:Arial,sans-serif;font-size:15px'><p>Use this code to {what}:</p>"
+                  f"<p style='font-size:30px;font-weight:bold;letter-spacing:6px'>{code}</p>"
+                  f"<p>It works for 10 minutes. If you did not ask for it, you can ignore this email.</p></div>",
+                  f"Your FitMentor code is {code}. Use it to {what}. It works for 10 minutes.")
+    except Exception:
+        return jsonify(error="Could not send the email. Please try again."), 502
+    return jsonify(ok=True)
+
+@app.route("/api/auth/reset", methods=["POST", "OPTIONS"])
+def reset_pw():
+    if request.method == "OPTIONS":
+        return "", 204
+    bad = need_db()
+    if bad: return bad
+    b = request.get_json(silent=True) or {}
+    email = str(b.get("email", "")).strip().lower()
+    pw = str(b.get("password", ""))
+    if len(pw) < 8:
+        return jsonify(error="Password must be at least 8 characters."), 400
+    if not EMAIL_OTP or not check_otp(email, "reset", b.get("otp", "")):
+        return jsonify(error="Code is wrong or expired. Ask for a new code."), 400
+    col = users_col()
+    u = col.find_one({"email": email})
+    if not u:
+        return jsonify(error="No account with this email."), 404
+    col.update_one({"_id": u["_id"]}, {"$set": {"pw": generate_password_hash(pw), "verified": True}})
+    return jsonify(token=make_token(u["_id"]), user=public_user(u))
 
 @app.route("/api/auth/register", methods=["POST", "OPTIONS"])
 def register():
@@ -326,7 +422,10 @@ def register():
     col = users_col()
     if col.find_one({"email": email}):
         return jsonify(error="An account with this email already exists. Please sign in."), 409
-    doc = {"email": email, "name": name, "pw": generate_password_hash(pw), "created": int(time.time()), "data": {}, "updated": 0}
+    if EMAIL_OTP and not check_otp(email, "signup", b.get("otp", "")):
+        return jsonify(error="Code is wrong or expired. Ask for a new code."), 400
+    doc = {"email": email, "name": name, "pw": generate_password_hash(pw), "created": int(time.time()),
+           "verified": EMAIL_OTP, "data": {}, "updated": 0}
     uid = col.insert_one(doc).inserted_id
     return jsonify(token=make_token(uid), user=public_user(doc))
 
@@ -367,9 +466,13 @@ def google_login():
     u = col.find_one({"google_sub": sub}) or (col.find_one({"email": email}) if email else None)
     if u:
         if not u.get("google_sub"):
-            col.update_one({"_id": u["_id"]}, {"$set": {"google_sub": sub}})
+            upd = {"$set": {"google_sub": sub, "verified": True}}
+            # bina verify wala password kisi aur ne bhi bana ho sakta hai -> hata do (Google ne email confirm kiya hai)
+            if u.get("pw") and not u.get("verified"):
+                upd["$unset"] = {"pw": ""}
+            col.update_one({"_id": u["_id"]}, upd)
     else:
-        u = {"email": email, "name": info.get("given_name") or info.get("name", ""), "google_sub": sub, "created": int(time.time()), "data": {}, "updated": 0}
+        u = {"email": email, "name": info.get("given_name") or info.get("name", ""), "google_sub": sub, "verified": True, "created": int(time.time()), "data": {}, "updated": 0}
         u["_id"] = col.insert_one(dict(u)).inserted_id
     return jsonify(token=make_token(u["_id"]), user=public_user(u))
 
