@@ -47,7 +47,12 @@ a{color:var(--pri)}
 :focus-visible{outline:2px solid var(--pri);outline-offset:2px}
 .skip{position:absolute;left:-999px;top:0}.skip:focus{left:12px;top:12px;z-index:99;background:var(--card);padding:8px 12px;border-radius:10px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 8px;max-width:1180px;margin:0 auto;position:sticky;top:0;z-index:15;background:linear-gradient(var(--bg) 60%,transparent);pointer-events:none}.top>*{pointer-events:auto}
-.top .logo{display:flex;align-items:center;gap:10px}
+.top .logo{display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;color:inherit;text-align:left;cursor:pointer;font:inherit}
+.top .logo h1{margin:0}
+.top-r{display:flex;align-items:center;gap:8px}
+.acct-btn{width:38px;height:38px;flex:0 0 38px;border-radius:50%;border:1px solid var(--line,rgba(255,255,255,.14));background:var(--card);color:var(--ink);font-family:var(--disp);font-weight:700;font-size:15px;display:grid;place-items:center;cursor:pointer;padding:0}
+.acct-btn.in{background:linear-gradient(135deg,var(--pri),var(--lime));color:#07090D;border:0}
+.acct-btn svg{width:20px;height:20px}
 .top .logo i{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-style:normal;background:conic-gradient(from 200deg,var(--pri),var(--lime),var(--fat),var(--pri));position:relative}
 .top .logo i::after{content:"";position:absolute;inset:3px;border-radius:9px;background:var(--bg)}
 .top .logo i b{position:relative;z-index:1;font-family:var(--disp);font-size:15px;color:var(--ink)}
@@ -284,8 +289,8 @@ details summary{cursor:pointer}
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <div class="top">
-  <div class="logo"><i><b>F</b></i><div><h1>FitMentor</h1><div class="tiny muted" id="hello">Your diet + gym mentor</div></div></div>
-  <input type="date" id="day" aria-label="Date">
+  <button class="logo" id="logoHome" type="button" aria-label="FitMentor home"><i><b>F</b></i><div><h1>FitMentor</h1><div class="tiny muted" id="hello">Your diet + gym mentor</div></div></button>
+  <div class="top-r"><input type="date" id="day" aria-label="Date"><button class="acct-btn" id="acctBtn" type="button" aria-label="Account"></button></div>
 </div>
 <main id="main">
 
@@ -1681,7 +1686,7 @@ $('authForm').onsubmit=async e=>{e.preventDefault();const email=$('aEmail').valu
   onAuthed(await api(authMode==='up'?'/api/auth/register':'/api/auth/login',{method:'POST',body:JSON.stringify({email,password:pw,name,otp})}))}
  catch(err){$('authErr').textContent=err.name==='AbortError'?'Server is taking too long. Try again.':err.message;if(err.status===409){setAuthMode('in');$('aEmail').value=email;$('authErr').textContent=err.message}}
  finally{$('authGo').disabled=false;authBtn()}};
-async function onAuthed(r){S._raw('token',r.token);S._raw('acct',{email:r.user.email,name:r.user.name,google:r.user.google});
+async function onAuthed(r){S._raw('token',r.token);S._raw('acct',{email:r.user.email,name:r.user.name,google:r.user.google});paintAcctBtn();
  const sd=r.user.data||{};
  if(sd.profile2){applyData(sd);S._raw('syncAt',r.user.updated);S._raw('changedAt',r.user.updated);location.reload();return}
  if(P){await pushNow();toast('Signed in — your data is now saved to your account');go('home');return}
@@ -1691,12 +1696,22 @@ async function bootSync(){if(!TOKEN_())return;try{const r=await api('/api/me',{}
   if(u.data&&u.data.profile2&&u.updated>sync&&u.updated>changed){applyData(u.data);S._raw('syncAt',u.updated);S._raw('changedAt',u.updated);location.reload();return}
   if(changed>sync)pushNow()}catch(e){if(e.status===401)signOut(true)}}
 function signOut(expired){['token','acct','syncAt','changedAt'].forEach(S.del);SYNC_KEYS.forEach(S.del);['profile','preName'].forEach(S.del);if(expired)try{sessionStorage.setItem('fm_expired','1')}catch(e){}location.reload()}
-function renderAcct(){const a=S.get('acct',null);$('acctCard').innerHTML=TOKEN_()&&a?`<h2>Account</h2><div class="small">Signed in as <b>${esc(a.email||'')}</b>${a.google?' (Google)':''}</div><div class="small muted" style="margin-top:4px">Your data is saved to your account and syncs across devices.</div><div class="row" style="margin-top:12px"><button class="btn ghost" id="signOutBtn">Sign out</button></div>`:`<h2>Account</h2><div class="small muted">You are not signed in, so your data lives only in this browser.</div><button class="btn sec" style="margin-top:10px" id="signInBtn">Create account / sign in</button>`;
- const so=$('signOutBtn');if(so)so.onclick=async()=>{so.disabled=true;so.textContent='Saving…';clearTimeout(pushT);
-  // pehle sab kuch account me save, tabhi sign out (warna is phone ka naya data kho jaata)
-  const ok=await pushNow();
-  if(ok){signOut();return}
-  so.disabled=false;so.textContent='Sign out';openSheet(`<h2>Not saved yet</h2><div class="small muted">Your latest changes could not reach your account (check your internet). If you sign out now, they will be lost from this phone.</div><div class="row" style="margin-top:14px"><button class="btn" onclick="closeSheet()">Stay signed in</button><button class="btn danger" id="soAnyway">Sign out anyway</button></div>`);$('soAnyway').onclick=()=>signOut()};const si=$('signInBtn');if(si)si.onclick=()=>go('auth')}
+async function safeSignOut(btn){if(btn){btn.disabled=true;btn.textContent='Saving…'}clearTimeout(pushT);
+ // pehle sab kuch account me save, tabhi sign out (warna is phone ka naya data kho jaata)
+ const ok=await pushNow();if(ok){signOut();return}
+ if(btn){btn.disabled=false;btn.textContent='Sign out'}openSheet(`<h2>Not saved yet</h2><div class="small muted">Your latest changes could not reach your account (check your internet). If you sign out now, they will be lost from this phone.</div><div class="row" style="margin-top:14px"><button class="btn" onclick="closeSheet()">Stay signed in</button><button class="btn danger" id="soAnyway">Sign out anyway</button></div>`);$('soAnyway').onclick=()=>signOut()}
+function paintAcctBtn(){const b=$('acctBtn');if(!b)return;const a=S.get('acct',null),inn=!!(TOKEN_()&&a);b.classList.toggle('in',inn);
+ b.innerHTML=inn?esc(((a.name||a.email||'?').trim()[0]||'?').toUpperCase()):'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
+ b.title=inn?'Signed in as '+(a.email||''):'Not signed in'}
+function openAcctMenu(){const a=S.get('acct',null),inn=!!(TOKEN_()&&a);
+ openSheet(inn?`<h2>${esc(a.name||'Your account')}</h2><div class="small muted">${esc(a.email||'')}${a.google?' · Google':''}</div><div class="small" style="margin-top:8px">Your data is saved to your account and syncs across devices.</div><div class="row" style="margin-top:14px"><button class="btn ghost" id="amSet">Settings</button><button class="btn danger" id="amOut">Sign out</button></div>`
+  :`<h2>Not signed in</h2><div class="small muted">Your data is saved only on this device. Create an account so it stays safe and works on any phone.</div><div class="row" style="margin-top:14px"><button class="btn glow" id="amIn">Create account / sign in</button></div>`);
+ if(inn){$('amSet').onclick=()=>{closeSheet();go('settings')};$('amOut').onclick=()=>safeSignOut($('amOut'))}else $('amIn').onclick=()=>{closeSheet();go('auth')}}
+$('acctBtn').onclick=openAcctMenu;
+$('logoHome').onclick=()=>go(P?'home':'hero');
+paintAcctBtn();
+function renderAcct(){paintAcctBtn();const a=S.get('acct',null);$('acctCard').innerHTML=TOKEN_()&&a?`<h2>Account</h2><div class="small">Signed in as <b>${esc(a.email||'')}</b>${a.google?' (Google)':''}</div><div class="small muted" style="margin-top:4px">Your data is saved to your account and syncs across devices.</div><div class="row" style="margin-top:12px"><button class="btn ghost" id="signOutBtn">Sign out</button></div>`:`<h2>Account</h2><div class="small muted">You are not signed in, so your data lives only in this browser.</div><button class="btn sec" style="margin-top:10px" id="signInBtn">Create account / sign in</button>`;
+ const so=$('signOutBtn');if(so)so.onclick=()=>safeSignOut(so);const si=$('signInBtn');if(si)si.onclick=()=>go('auth')}
 
 // ================= LANDING HERO (Three.js, lazy) =================
 let H3=null,heroIO=null;
