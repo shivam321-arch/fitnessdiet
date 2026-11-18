@@ -166,6 +166,17 @@ nav.bottom button.log .ic{background:linear-gradient(135deg,var(--pri),var(--lim
 .gl.f::after{content:"";position:absolute;left:0;right:0;bottom:0;height:80%;background:linear-gradient(var(--water),color-mix(in srgb,var(--water) 60%,#002))}
 table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font-size:12px;color:var(--mut);font-weight:500}
 .chartbox svg{width:100%;height:auto;display:block}
+.np-head h2{margin:4px 0 2px}.np-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.np-acts{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
+.np-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-top:14px}.np-k{background:var(--card2);border-radius:14px;padding:10px 12px;box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column}.np-k span{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}.np-k b{font-family:var(--disp);font-size:20px;font-variant-numeric:tabular-nums}.np-k i{font-style:normal;font-size:11px;color:var(--mut)}
+.np-sum{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;color:var(--mut)}
+.np-days{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}.np-days button{flex:0 0 auto;border:1px solid var(--line2);background:var(--bg2);color:var(--ink);border-radius:12px;padding:7px 12px;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;min-width:84px}.np-days button span{font-size:11px;color:var(--mut)}.np-days button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}.np-days button.on span{color:var(--bg);opacity:.75}
+.np-tablewrap{overflow-x:auto;margin-top:10px}.np-t{font-size:13.5px}.np-t .mob{display:none;color:var(--pri);margin-top:2px}@media(max-width:620px){.np-t th.m,.np-t td.m{display:none}.np-t .mob{display:block}}.np-t td.sw{width:38px}.np-t .n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.np-t tr.mh td{background:var(--card2);padding:7px 8px;border-bottom:0;font-size:13px}.np-t tr.mh .muted{font-size:12px}.np-t tr.tot td{font-weight:700;border-top:2px solid var(--pri);color:var(--ink)}
+.swbtn{border:1px solid var(--line2);background:transparent;color:var(--pri);border-radius:8px;width:32px;height:30px;cursor:pointer;font-size:15px}.swbtn:hover{background:var(--pri2)}
+.swopt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;border:1px solid var(--line2);background:var(--bg2);color:var(--ink);border-radius:12px;padding:10px 12px;margin-top:8px;font:inherit;cursor:pointer}.swopt:hover{border-color:var(--pri)}
+.np-bars{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 16px;margin-top:12px}.nb-h{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px}.nb-h b{font-variant-numeric:tabular-nums}.warnc{color:var(--warn)}
+.np-why{padding:10px 0;border-top:1px solid var(--line)}.np-why:first-of-type{border-top:0}.np-why details{margin-top:4px}.np-why summary,.np-more summary{cursor:pointer;color:var(--pri)}.np-why ul{margin:4px 0;padding-left:18px}.np-more{margin-top:8px}.np-more ul{padding-left:18px}
+.np-g{padding:8px 0;border-top:1px solid var(--line)}.np-g:first-of-type{border-top:0}.np-g ul{margin:4px 0;padding-left:18px}
+.np-hist{font-size:13px}.np-hist .n{text-align:right}.np-hist tr.cur td{font-weight:600;color:var(--pri)}
 .dchart{font-size:13px;margin-top:6px}.dchart th{color:var(--fat);font-size:12px}.dchart tr.mh td{background:var(--card2);color:var(--pri);font-size:12px;padding:6px 8px;border-bottom:0}.dchart td{padding:7px 8px}.dchart tr.tot td{color:var(--fat);font-weight:700;border-top:2px solid var(--fat)}
 .hide{display:none!important}
 details summary{cursor:pointer}
@@ -574,12 +585,6 @@ details summary{cursor:pointer}
 
 <section class="view" id="v-chart">
   <button class="back" onclick="go('more')">← More</button>
-  <div class="card">
-    <div class="row"><button class="btn" id="chartAI">✨ Make a personal AI chart</button><button class="btn ghost" id="chartDl">⬇️ Download</button><button class="btn ghost" id="chartNew">↻ New chart</button></div>
-    <div class="err" id="chartErr"></div>
-    <div class="tiny muted">Open the downloaded file in a browser and Print → "Save as PDF".</div>
-    <textarea id="chartTxt" class="hide" style="margin-top:8px;min-height:100px" readonly></textarea>
-  </div>
   <div id="chartOut"></div>
 </section>
 
@@ -987,13 +992,486 @@ FOODS.forEach((f,i)=>{f.id=i;const m=MAC[f.n];if(m){f.cb=m[0];f.ft=m[1]}else{con
 const SRC={db:['Database','b-db','Typical value from the FitMentor list'],est:['Estimated','b-est','AI estimate from your text'],photo:['AI photo','b-photo','Estimated from photo, with a range'],custom:['Yours','b-custom','Entered by you']};
 const badge=s=>{const x=SRC[s]||SRC.db;return `<span class="badge ${x[1]}" title="${x[2]}">${x[0]}</span>`};
 
+/*FMN-START*/
+// ================= FitMentor NUTRITION ENGINE v2 =================
+// Deterministic: all numbers are calculated here, never guessed by AI.
+// Food values: per household unit, home-style cooking. Raw-ingredient values
+// follow IFCT 2017 (ICMR-NIN); cooked-dish values are FitMentor recipe estimates.
+const FMN=(()=>{
+const SOURCES={
+ 'ICMR-DGI':{n:'ICMR-NIN Dietary Guidelines for Indians',y:'2024',u:'https://www.nin.res.in/dietaryguidelines/pdfjs/locale/DGI24thJune2024fin.pdf',e:'Established'},
+ 'ICMR-PLATE':{n:'ICMR-NIN My Plate for the Day',y:'2024',u:'https://www.nin.res.in/brief/Policy%20Brief%20My%20Plate%20J18%2024.pdf',e:'Established'},
+ 'ICMR-RDA':{n:'ICMR-NIN Nutrient Requirements for Indians (RDA/EAR)',y:'2020',u:'https://www.nin.res.in/rdabook/brief_note.pdf',e:'Established'},
+ 'IFCT':{n:'Indian Food Composition Tables (ICMR-NIN)',y:'2017',u:'https://nin.res.in/ebooks/IFCT2017.pdf',e:'Established'},
+ 'MSJ':{n:'Frankenfield et al. – RMR equations systematic review',y:'2005',u:'https://pubmed.ncbi.nlm.nih.gov/15883556/',e:'Established'},
+ 'NICE':{n:'NICE NG246 Overweight and obesity management',y:'2025',u:'https://www.nice.org.uk/guidance/NG246/chapter/physical-activity-and-diet',e:'Established'},
+ 'MORTON':{n:'Morton et al. – protein & resistance training meta-analysis (BJSM)',y:'2018',u:'https://pubmed.ncbi.nlm.nih.gov/28698222/',e:'Established'},
+ 'REFALO':{n:'Refalo, Trexler & Helms – protein in energy restriction',y:'2025',u:'https://openrepository.aut.ac.nz/server/api/core/bitstreams/3480bb69-c09c-4e5c-814e-5c232ea07e27/content',e:'Emerging'},
+ 'HUDSON':{n:'Hudson et al. – protein above the RDA and lean mass',y:'2020',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC7231581',e:'Established'},
+ 'SCHOENFELD':{n:'Schoenfeld & Aragon – protein per meal (JISSN)',y:'2018',u:'https://pubmed.ncbi.nlm.nih.gov/29497353/',e:'Emerging'},
+ 'PROTAGE':{n:'PROT-AGE Study Group – protein in older adults',y:'2013',u:'https://experts.mcmaster.ca/scholarly-works/55421',e:'Established'},
+ 'KDIGO':{n:'KDIGO 2024 CKD guideline',y:'2024',u:'https://www.guidelinecentral.com/guideline/25092',e:'Established'},
+ 'ADA':{n:'ADA Standards of Care in Diabetes – 2026',y:'2026',u:'https://diabetesonthenet.com/?p=250186',e:'Established'},
+ 'WHO-SALT':{n:'WHO guidelines on sodium and free sugars',y:'2012/2015',u:'https://www.cfs.gov.hk/english/rc/sci_events/files/IS_on_reduction_of_salt_and_sugar/Engelhardt_Salt_and_Sugar_Guidelines_WHO_SMALL_FINAL.pdf',e:'Established'},
+ 'WHO-FAT':{n:'WHO – reduce fat, salt and sugar',y:'—',u:'https://www.emro.who.int/nutrition/reduce-fat-salt-and-sugar-intake/index.html',e:'Established'},
+ 'AND-VEG':{n:'Academy of Nutrition & Dietetics – vegetarian dietary patterns (position)',y:'2025',u:'https://www.christiankoeder.com/2025/02/Raj2025.html',e:'Established'},
+ 'EFSA-W':{n:'EFSA dietary reference values for water',y:'2010',u:'https://pmc.ncbi.nlm.nih.gov/articles/PMC6520853',e:'Established'},
+ 'WHO-PA':{n:'WHO 2020 physical activity guidelines',y:'2020',u:'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7719906/',e:'Established'},
+ 'ASIAN-BMI':{n:'Consensus BMI cut-offs for Asian Indians',y:'2009/2017',u:'https://pmc.ncbi.nlm.nih.gov/articles/5560889/',e:'Established'},
+ 'ADAPT':{n:'Nunes et al. – adaptive thermogenesis systematic review',y:'2022',u:'https://eprints.whiterose.ac.uk/id/eprint/172561/',e:'Emerging'},
+ 'NHS-RATE':{n:'NHS – safe weight loss 0.5–1 kg/week',y:'—',u:'https://oviva.com/uk/en/how-to-set-a-weight-loss-goal/',e:'Established'}
+};
+
+// ---------- FOOD DATABASE ----------
+// k kcal, p/c/f/fib grams PER UNIT. un/up unit words, gu grams (or ml) per unit.
+// diet: vg vegan-ok, v needs dairy-veg, e needs eggs, n needs non-veg.
+// alg: dairy gluten nuts peanut soy egg fish. cost 1 cheap..3 costly. t minutes.
+// gi L/M/H. sw sweet. sf high saturated fat. reg N S E W (preferred cuisines).
+const F=(o)=>Object.assign({pop:2,oil:0,diet:'vg',alg:[],tags:[],cost:1,t:10,gi:'M',sw:0,sf:0,reg:[],step:1,min:1,max:2,def:1,ml:0},o);
+const DB=[
+ // cereals
+ F({id:'roti',pop:3,n:'Chapati [roti]',role:'cereal',sl:['bf','lunch','din'],un:'roti',up:'rotis',gu:30,k:104,p:3.6,c:21,f:0.6,fib:3.3,alg:['gluten'],tags:['roti','wheat'],t:15,min:1,max:3,def:2,gNote:'atta'}),
+ F({id:'roti_bran',n:'Atta + bran chapati [chokar roti]',role:'cereal',sl:['bf','lunch','din'],un:'roti',up:'rotis',gu:30,k:100,p:3.8,c:19.5,f:0.6,fib:4.2,alg:['gluten'],tags:['roti','wheat'],t:15,min:1,max:3,def:2,gNote:'atta',gi:'L'}),
+ F({id:'roti_mg',n:'Multigrain chapati [multigrain roti]',role:'cereal',sl:['bf','lunch','din'],un:'roti',up:'rotis',gu:30,k:106,p:4,c:20,f:1,fib:4,alg:['gluten'],tags:['roti','wheat'],t:15,min:1,max:3,def:2,gNote:'atta',gi:'L'}),
+ F({id:'jowar',n:'Sorghum flatbread [jowar roti]',role:'cereal',sl:['bf','lunch','din'],un:'roti',up:'rotis',gu:35,k:122,p:3.7,c:25,f:0.7,fib:3.4,tags:['roti','millet'],t:20,min:1,max:3,def:2,gNote:'flour',reg:['W']}),
+ F({id:'bajra',n:'Pearl millet flatbread [bajra roti]',role:'cereal',sl:['lunch','din'],un:'roti',up:'rotis',gu:35,k:127,p:4.1,c:23,f:1.7,fib:4,tags:['roti','millet'],t:20,min:1,max:3,def:2,gNote:'flour',reg:['N','W']}),
+ F({id:'ragi',n:'Finger millet flatbread [ragi roti]',role:'cereal',sl:['bf','lunch','din'],un:'roti',up:'rotis',gu:35,k:114,p:2.6,c:25,f:0.6,fib:4,tags:['roti','millet'],t:20,min:1,max:3,def:2,gNote:'flour',reg:['S']}),
+ F({id:'rice',pop:3,n:'Rice, cooked [chawal]',role:'cereal',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:173,p:3.4,c:39,f:0.3,fib:0.6,tags:['rice'],gi:'H',step:0.5,min:0.5,max:2,def:1,reg:['S','E']}),
+ F({id:'brown_rice',pop:1,n:'Brown rice, cooked [brown chawal]',role:'cereal',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:170,p:3.8,c:36,f:1.3,fib:2.7,tags:['rice'],cost:2,t:40,step:0.5,min:0.5,max:2,def:1}),
+ // breakfast bases
+ F({id:'poha',pop:3,n:'Vegetable poha [veg poha]',role:'bf',sl:['bf'],un:'plate',up:'plates',gu:180,k:230,p:4.5,c:38,f:6.5,fib:2.5,oil:1,tags:['poha'],t:15,step:0.5,min:0.5,max:1.5,reg:['W','N']}),
+ F({id:'upma',n:'Vegetable upma [rava upma]',role:'bf',sl:['bf'],un:'plate',up:'plates',gu:180,k:225,p:5.5,c:34,f:7,fib:2.5,oil:1,alg:['gluten'],tags:['upma'],t:15,step:0.5,min:0.5,max:1.5,reg:['S','W']}),
+ F({id:'oats',n:'Vegetable masala oats',role:'bf',sl:['bf'],un:'bowl',up:'bowls',gu:200,k:215,p:7,c:30,f:7.5,fib:4.5,oil:1,alg:['gluten'],tags:['oats'],cost:2,gi:'L',step:0.5,min:0.5,max:1.5}),
+ F({id:'dalia',n:'Vegetable broken-wheat porridge [namkeen dalia]',role:'bf',sl:['bf','din'],un:'bowl',up:'bowls',gu:200,k:195,p:6,c:34,f:4,fib:5,oil:0.75,alg:['gluten'],tags:['dalia'],gi:'L',t:20,step:0.5,min:0.5,max:1.5,reg:['N']}),
+ F({id:'moong_cheela',n:'Moong dal pancake + green chutney [moong cheela]',role:'bf',sl:['bf','din'],un:'cheela',up:'cheelas',gu:60,k:120,p:6.5,c:15,f:3.5,fib:2,oil:0.5,tags:['cheela','dal'],gi:'L',t:20,min:2,max:3,def:2,reg:['N','W']}),
+ F({id:'besan_cheela',n:'Gram flour pancake with vegetables [besan chilla]',role:'bf',sl:['bf','din'],un:'chilla',up:'chillas',gu:60,k:125,p:5.5,c:15,f:4.5,fib:2.5,oil:0.5,tags:['cheela','besan'],gi:'L',t:15,min:2,max:3,def:2,reg:['N','W']}),
+ F({id:'idli',n:'Steamed rice cake [idli]',role:'bf',sl:['bf'],un:'idli',up:'idlis',gu:40,k:60,p:2,c:12.5,f:0.2,fib:0.5,tags:['idli'],t:20,min:2,max:4,def:3,reg:['S'],with:[['sambar',1]]}),
+ F({id:'dosa',n:'Plain rice crepe [dosa]',role:'bf',sl:['bf'],un:'dosa',up:'dosas',gu:50,k:120,p:2.5,c:18,f:4,fib:0.8,oil:0.5,tags:['dosa'],t:20,min:1,max:3,def:2,reg:['S'],with:[['sambar',1]]}),
+ F({id:'sandwich',n:'Vegetable sandwich, whole-wheat bread',role:'bf',sl:['bf'],un:'sandwich',up:'sandwiches',gu:120,k:210,p:7.5,c:35,f:4,fib:5,alg:['gluten'],tags:['bread'],t:10,min:1,max:2}),
+ F({id:'paratha',n:'Vegetable-stuffed flatbread [gobhi / mooli paratha]',role:'bf',sl:['bf'],un:'paratha',up:'parathas',gu:90,k:210,p:5,c:32,f:6,fib:4.5,oil:1,alg:['gluten'],tags:['paratha'],t:25,min:1,max:2,reg:['N'],with:[['curd',1]]}),
+ F({id:'sprouts',n:'Sprouted moong salad [sprouts chaat]',role:'bf',sl:['bf','eve','mid','lunch','din'],un:'katori',up:'katori',gu:120,k:110,p:7.5,c:17,f:0.8,fib:4.5,tags:['sprouts','chana'],gi:'L',t:10,min:1,max:2}),
+ F({id:'eggs',pop:3,n:'Boiled eggs [ubla anda]',role:'egg',sl:['bf','eve','lunch','din'],un:'egg',up:'eggs',gu:50,k:75,p:6.3,c:0.5,f:5.2,fib:0,diet:'e',alg:['egg'],tags:['egg','eggs'],gi:'L',min:1,max:3,def:2}),
+ F({id:'omelette',n:'Vegetable omelette [omelette]',role:'egg',sl:['bf','din'],un:'egg',up:'eggs',gu:60,k:100,p:6.5,c:1.5,f:7.5,fib:0.3,oil:0.5,diet:'e',alg:['egg'],tags:['egg','eggs'],gi:'L',min:1,max:3,def:2}),
+ F({id:'paneer_bhurji',n:'Scrambled cottage cheese [paneer bhurji]',role:'pmain',sl:['bf','din','lunch'],un:'portion',up:'portions',gu:50,gNote:'paneer',k:180,p:9.8,c:3,f:14,fib:0.8,oil:0.5,diet:'v',alg:['dairy'],tags:['paneer'],sf:1,cost:2,t:15,step:0.5,min:0.5,max:2}),
+ F({id:'tofu_bhurji',pop:1,n:'Scrambled tofu [tofu bhurji]',role:'pmain',sl:['bf','din','lunch'],un:'portion',up:'portions',gu:100,gNote:'tofu',k:150,p:12.5,c:4,f:9.5,fib:1.5,oil:0.5,alg:['soy'],tags:['tofu'],cost:3,t:15,step:0.5,min:0.5,max:2}),
+ // pulses & protein mains
+ F({id:'dal_moong',pop:3,n:'Yellow lentils [moong dal]',role:'pmain',sl:['lunch','din'],un:'katori',up:'katori',gu:150,raw:30,rawL:'raw dal',k:150,p:7.4,c:18,f:5.3,fib:2.5,oil:1,tags:['dal'],gi:'L',t:20,step:0.5,min:1,max:2}),
+ F({id:'dal_arhar',pop:3,n:'Pigeon pea lentils [arhar / toor dal]',role:'pmain',sl:['lunch','din'],un:'katori',up:'katori',gu:150,raw:30,rawL:'raw dal',k:150,p:6.7,c:18.5,f:5.3,fib:2.8,oil:1,tags:['dal'],gi:'L',t:20,step:0.5,min:1,max:2}),
+ F({id:'dal_masoor',n:'Red lentils [masoor dal]',role:'pmain',sl:['lunch','din'],un:'katori',up:'katori',gu:150,raw:30,rawL:'raw dal',k:150,p:7.3,c:18,f:5.3,fib:3,oil:1,tags:['dal'],gi:'L',t:20,step:0.5,min:1,max:2,reg:['E','N']}),
+ F({id:'sambar',n:'Lentil-vegetable stew [sambar]',role:'pmain',sl:['bf','lunch','din'],un:'katori',up:'katori',gu:150,k:110,p:5,c:15,f:3.5,fib:3.5,oil:0.5,tags:['sambar','dal'],gi:'L',t:30,step:0.5,min:1,max:2,reg:['S']}),
+ F({id:'rajma',n:'Kidney bean curry [rajma]',role:'pmain',sl:['lunch'],un:'katori',up:'katori',gu:150,raw:35,rawL:'raw beans',k:165,p:7.9,c:21,f:5.6,fib:5.5,oil:1,tags:['rajma'],gi:'L',t:40,step:0.5,min:1,max:2,reg:['N']}),
+ F({id:'chole',n:'Chickpea curry [chole]',role:'pmain',sl:['lunch'],un:'katori',up:'katori',gu:150,raw:35,rawL:'raw beans',k:175,p:6.8,c:22,f:6.8,fib:5,oil:1,tags:['chole'],gi:'L',t:40,step:0.5,min:1,max:2,reg:['N']}),
+ F({id:'kala_chana',n:'Black chickpea curry [kala chana]',role:'pmain',sl:['lunch','din'],un:'katori',up:'katori',gu:150,raw:35,rawL:'raw beans',k:165,p:7,c:20.5,f:6.2,fib:6,oil:1,tags:['chana'],gi:'L',t:40,step:0.5,min:1,max:2}),
+ F({id:'paneer_sabji',n:'Cottage cheese with vegetables [paneer sabji / tikka]',role:'pmain',sl:['lunch','din'],un:'portion',up:'portions',gu:50,gNote:'paneer',k:180,p:9.8,c:3.5,f:14,fib:1,oil:0.5,diet:'v',alg:['dairy'],tags:['paneer'],sf:1,cost:2,t:20,step:0.5,min:0.5,max:2}),
+ F({id:'palak_paneer',n:'Spinach with cottage cheese [palak paneer]',role:'pmain',sl:['lunch','din'],un:'katori',up:'katori',gu:150,raw:50,rawL:'paneer',k:210,p:11.5,c:6,f:15.5,fib:2.5,oil:1,diet:'v',alg:['dairy'],tags:['paneer','glv'],sf:1,cost:2,t:25,step:0.5,min:1,max:1.5,reg:['N']}),
+ F({id:'tofu_curry',pop:1,n:'Tofu with vegetables [tofu sabji]',role:'pmain',sl:['lunch','din'],un:'portion',up:'portions',gu:100,gNote:'tofu',k:150,p:12.5,c:4,f:9.5,fib:1.5,oil:0.5,alg:['soy'],tags:['tofu'],cost:3,t:20,step:0.5,min:0.5,max:2}),
+ F({id:'soya',n:'Soya chunk curry [soya sabji]',role:'pmain',sl:['lunch','din'],un:'katori',up:'katori',gu:150,raw:30,rawL:'dry soya chunks',k:150,p:15.6,c:10.5,f:5.2,fib:4,oil:1,alg:['soy'],tags:['soya'],gi:'L',t:25,step:0.5,min:0.5,max:1.5}),
+ F({id:'egg_curry',n:'Egg curry, 2 eggs [anda curry]',role:'pmain',sl:['lunch','din'],un:'katori',up:'katori',gu:150,raw:2,rawL:'eggs',rawN:1,k:225,p:13,c:6,f:16.5,fib:1,oil:1,diet:'e',alg:['egg'],tags:['egg','eggs'],gi:'L',t:25,step:0.5,min:0.5,max:1.5}),
+ F({id:'chicken_curry',n:'Home-style chicken curry',role:'pmain',sl:['lunch','din'],un:'katori',up:'katori',gu:150,raw:100,rawL:'chicken',k:220,p:24,c:5,f:11.5,fib:1,oil:1,diet:'n',tags:['chicken'],gi:'L',cost:2,t:40,step:0.5,min:0.5,max:2}),
+ F({id:'chicken_tikka',n:'Grilled chicken [chicken tikka]',role:'pmain',sl:['lunch','din'],un:'portion',up:'portions',gu:100,gNote:'cooked chicken',k:165,p:27,c:3,f:5,fib:0.5,diet:'n',tags:['chicken'],gi:'L',cost:2,t:30,step:0.5,min:0.5,max:2}),
+ F({id:'fish_curry',n:'Fish curry [machhli]',role:'pmain',sl:['lunch','din'],un:'katori',up:'katori',gu:150,raw:100,rawL:'fish',k:185,p:19,c:5,f:9.5,fib:0.5,oil:1,diet:'n',alg:['fish'],tags:['fish'],gi:'L',cost:3,t:30,step:0.5,min:0.5,max:2,reg:['E','S']}),
+ F({id:'fish_grill',n:'Grilled / tawa fish',role:'pmain',sl:['lunch','din'],un:'portion',up:'portions',gu:100,gNote:'cooked fish',k:150,p:21,c:1,f:7,fib:0,oil:0.5,diet:'n',alg:['fish'],tags:['fish'],gi:'L',cost:3,t:20,step:0.5,min:0.5,max:2}),
+ F({id:'khichdi',n:'Moong dal khichdi with vegetables',role:'onepot',sl:['din','lunch'],un:'bowl',up:'bowls',gu:250,raw:50,rawL:'raw rice + dal',k:225,p:8.5,c:35,f:5.5,fib:2.5,oil:1,tags:['khichdi','dal'],t:25,step:0.5,min:1,max:2}),
+ // vegetables
+ F({id:'lauki',pop:3,n:'Bottle / ridge gourd curry [lauki / tori sabji]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:82,p:1.5,c:8.5,f:4.7,fib:3,oil:1,tags:['lauki'],gi:'L',t:20,step:0.5,min:1,max:2}),
+ F({id:'tinda',n:'Round gourd / pointed gourd [tinda / parwal sabji]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:85,p:1.8,c:9,f:4.7,fib:3.5,oil:1,tags:['tinda'],gi:'L',t:20,step:0.5,min:1,max:2,reg:['N','E']}),
+ F({id:'bhindi',pop:3,n:'Okra stir-fry [bhindi sabji]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:108,p:3,c:11.5,f:5.5,fib:5,oil:1,tags:['bhindi'],gi:'L',t:20,step:0.5,min:1,max:2}),
+ F({id:'cabbage',pop:3,n:'Cabbage & beans stir-fry [patta gobhi / beans]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:94,p:2.8,c:9.5,f:5,fib:4,oil:1,tags:['cabbage'],gi:'L',t:15,step:0.5,min:1,max:2}),
+ F({id:'gobhi',pop:3,n:'Cauliflower curry [gobhi sabji]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:93,p:3,c:9,f:5,fib:4,oil:1,tags:['gobhi'],gi:'L',t:20,step:0.5,min:1,max:2}),
+ F({id:'mixveg',pop:3,n:'Mixed vegetables [mix veg]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:120,p:4,c:14,f:5.3,fib:5,oil:1,tags:['mixveg'],gi:'L',t:25,step:0.5,min:1,max:2}),
+ F({id:'palak',n:'Spinach / fenugreek greens [palak / methi sabji]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:94,p:4,c:6.5,f:5.8,fib:4,oil:1,tags:['glv'],gi:'L',t:20,step:0.5,min:1,max:2}),
+ F({id:'baingan',n:'Roasted brinjal mash [baingan bharta]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:104,p:2.5,c:11,f:5.5,fib:5,oil:1,tags:['baingan'],gi:'L',t:30,step:0.5,min:1,max:2}),
+ F({id:'karela',n:'Bitter gourd stir-fry [karela sabji]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:95,p:2.5,c:9,f:5.5,fib:4.5,oil:1,tags:['karela'],gi:'L',t:25,step:0.5,min:1,max:2}),
+ F({id:'kaddu',n:'Pumpkin curry [kaddu sabji]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:105,p:1.5,c:15,f:4.5,fib:2.5,oil:1,tags:['kaddu'],t:20,step:0.5,min:1,max:2}),
+ F({id:'mushroom',pop:1,n:'Mushroom & peas [mushroom matar]',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:124,p:6,c:12,f:5.8,fib:4,oil:1,tags:['mushroom'],gi:'L',cost:3,t:20,step:0.5,min:1,max:2}),
+ F({id:'broccoli',pop:1,n:'Broccoli & capsicum stir-fry',role:'veg',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:93,p:4,c:8,f:5,fib:4,oil:1,tags:['broccoli'],gi:'L',cost:3,t:15,step:0.5,min:1,max:2}),
+ F({id:'salad',pop:3,n:'Salad: cucumber, tomato, onion, carrot',role:'salad',sl:['lunch','din'],un:'bowl',up:'bowls',gu:150,k:36,p:1.3,c:7,f:0.3,fib:2.5,tags:['salad'],gi:'L',t:5,step:0.5,min:0.5,max:2}),
+ // dairy & protein sides
+ F({id:'curd',pop:3,n:'Yogurt, toned [dahi]',role:'side',sl:['bf','lunch','din','eve'],un:'katori',up:'katori',gu:150,k:90,p:5,c:7,f:4.5,fib:0,diet:'v',alg:['dairy'],tags:['curd'],gi:'L',t:0,step:0.5,min:0.5,max:2}),
+ F({id:'raita',n:'Cucumber yogurt dip [kheera raita]',role:'side',sl:['lunch','din'],un:'katori',up:'katori',gu:150,k:93,p:5,c:8,f:4.5,fib:0.5,diet:'v',alg:['dairy'],tags:['curd'],gi:'L',t:5,step:0.5,min:0.5,max:2}),
+ F({id:'hung_curd',pop:1,n:'Hung curd with cucumber [chakka dahi]',role:'side',sl:['bf','eve','lunch','din'],un:'portion',up:'portions',gu:100,k:99,p:9,c:4.5,f:5,fib:0.3,diet:'v',alg:['dairy'],tags:['curd'],gi:'L',cost:2,t:5,step:0.5,min:0.5,max:2}),
+ F({id:'milk',pop:3,n:'Milk, toned [doodh]',role:'side',sl:['bf','post','eve'],un:'glass',up:'glasses',gu:200,ml:1,k:116,p:6.2,c:9.4,f:6,fib:0,diet:'v',alg:['dairy'],tags:['milk'],gi:'L',t:0,step:0.5,min:0.5,max:1.5}),
+ F({id:'soymilk',pop:1,n:'Soy milk, unsweetened',role:'side',sl:['bf','post','eve'],un:'glass',up:'glasses',gu:200,ml:1,k:78,p:6.6,c:4,f:4,fib:0.5,alg:['soy'],tags:['soy milk'],gi:'L',cost:2,t:0,step:0.5,min:0.5,max:1.5}),
+ F({id:'paneer',pop:3,n:'Cottage cheese cubes, plain [paneer]',role:'side',sl:['bf','lunch','din','eve'],un:'portion',up:'portions',gu:50,gNote:'paneer',k:154,p:9.4,c:1.2,f:12.4,fib:0,diet:'v',alg:['dairy'],tags:['paneer'],sf:1,cost:2,t:5,step:0.5,min:0.5,max:1.5}),
+ F({id:'egg_side',pop:3,n:'Boiled eggs [ubla anda]',role:'side',sl:['bf','lunch','din','eve'],un:'egg',up:'eggs',gu:50,k:75,p:6.3,c:0.5,f:5.2,fib:0,diet:'e',alg:['egg'],tags:['egg','eggs'],gi:'L',min:1,max:3,def:2}),
+ F({id:'egg_white',pop:2,n:'Boiled egg whites [ande ki safedi]',role:'side',sl:['bf','lunch','din','eve'],un:'egg white',up:'egg whites',gu:33,k:17,p:3.6,c:0.2,f:0.1,fib:0,diet:'e',alg:['egg'],tags:['egg','eggs'],gi:'L',t:10,min:2,max:4,def:3}),
+ F({id:'tofu_side',pop:1,n:'Pan-tossed tofu cubes',role:'side',sl:['bf','lunch','din'],un:'portion',up:'portions',gu:100,gNote:'tofu',k:150,p:12.5,c:4,f:9.5,fib:1.5,oil:0.5,alg:['soy'],tags:['tofu'],cost:3,t:10,step:0.5,min:0.5,max:1.5}),
+ // fruit
+ F({id:'apple',pop:3,n:'Apple [seb]',role:'fruit',sl:['mid','eve','post','bf'],un:'medium apple',up:'medium apples',gu:150,k:80,p:0.4,c:19.5,f:0.2,fib:3.6,tags:['fruit','fruits'],gi:'L',t:0,max:2}),
+ F({id:'papaya',pop:3,n:'Papaya [papita]',role:'fruit',sl:['mid','eve','post','bf'],un:'bowl',up:'bowls',gu:150,k:60,p:0.9,c:14,f:0.2,fib:2.5,tags:['fruit','fruits'],gi:'M',t:0,max:2}),
+ F({id:'guava',n:'Guava [amrood]',role:'fruit',sl:['mid','eve'],un:'medium guava',up:'medium guavas',gu:120,k:62,p:2.5,c:12,f:0.6,fib:6,tags:['fruit','fruits'],gi:'L',t:0,max:2}),
+ F({id:'orange',n:'Orange / sweet lime [santra / mosambi]',role:'fruit',sl:['mid','eve'],un:'fruit',up:'fruits',gu:150,k:62,p:1.2,c:14,f:0.2,fib:3,tags:['fruit','fruits'],gi:'L',t:0,max:2}),
+ F({id:'pear',pop:1,n:'Pear [nashpati]',role:'fruit',sl:['mid','eve','post'],un:'pear',up:'pears',gu:170,k:88,p:0.5,c:21,f:0.2,fib:5,tags:['fruit','fruits'],gi:'L',cost:2,t:0,max:2}),
+ F({id:'banana',n:'Banana [kela]',role:'fruit',sl:['mid','eve','bf'],un:'medium banana',up:'medium bananas',gu:120,k:105,p:1.3,c:25,f:0.4,fib:3,tags:['fruit','fruits','banana'],gi:'M',t:0,max:2}),
+ F({id:'watermelon',n:'Watermelon [tarbooz]',role:'fruit',sl:['mid'],un:'bowl',up:'bowls',gu:200,k:62,p:1.2,c:14.5,f:0.3,fib:0.8,tags:['fruit','fruits'],gi:'H',t:0,max:2}),
+ F({id:'pomegranate',pop:1,n:'Pomegranate seeds [anar]',role:'fruit',sl:['mid','eve'],un:'½ cup',up:'cups (½)',gu:90,k:80,p:1.5,c:17,f:1,fib:3.5,tags:['fruit','fruits'],gi:'L',cost:2,t:5,max:2}),
+ // snacks
+ F({id:'chana',pop:3,n:'Roasted chickpeas [bhuna chana]',role:'snack',sl:['eve','mid'],un:'handful',up:'handfuls',gu:30,k:110,p:6.8,c:17,f:1.6,fib:4.5,tags:['chana'],gi:'L',t:0,step:0.5,min:0.5,max:2}),
+ F({id:'makhana',n:'Roasted fox nuts [makhana]',role:'snack',sl:['eve','mid'],un:'bowl',up:'bowls',gu:25,k:110,p:2.4,c:19,f:2.7,fib:3.5,oil:0.5,tags:['makhana'],gi:'L',cost:2,t:5,step:0.5,min:0.5,max:2}),
+ F({id:'peanuts',n:'Roasted peanuts [moongphali]',role:'snack',sl:['eve','mid'],un:'small handful',up:'small handfuls',gu:25,k:150,p:6.5,c:4,f:12,fib:2.2,alg:['peanut'],tags:['peanut'],gi:'L',t:0,step:0.5,min:0.5,max:1.5}),
+ F({id:'nuts',n:'Almonds (10) + walnuts (2) [badam + akhrot]',role:'snack',sl:['eve','mid'],un:'portion',up:'portions',gu:20,k:128,p:3.8,c:3.5,f:11,fib:2,alg:['nuts'],tags:['nuts'],gi:'L',cost:3,t:0,step:0.5,min:0.5,max:1}),
+ F({id:'bhel',n:'Puffed rice snack with vegetables [murmura bhel]',role:'snack',sl:['eve'],un:'bowl',up:'bowls',gu:100,k:115,p:2.5,c:23,f:1.5,fib:1.5,tags:['bhel'],gi:'H',t:10,step:0.5,min:0.5,max:1.5}),
+ F({id:'sattu',n:'Roasted gram flour drink [sattu]',role:'snack',sl:['eve','mid','bf'],un:'glass',up:'glasses',gu:30,gNote:'sattu',k:110,p:6.6,c:18,f:1.5,fib:3,tags:['sattu','chana'],gi:'L',t:5,step:0.5,min:0.5,max:1.5,reg:['N','E']}),
+ F({id:'khakhra',n:'Whole-wheat crisp flatbread [khakhra]',role:'snack',sl:['eve'],un:'khakhra',up:'khakhras',gu:15,k:60,p:1.8,c:10,f:1.5,fib:1.2,alg:['gluten'],tags:['khakhra'],t:0,min:1,max:3,def:2,reg:['W']}),
+ F({id:'dhokla',n:'Steamed gram flour cake [dhokla]',role:'snack',sl:['eve','bf'],un:'piece',up:'pieces',gu:30,k:50,p:2,c:7.5,f:1.5,fib:0.6,tags:['dhokla','besan'],t:30,min:2,max:4,def:2,reg:['W']}),
+ // drinks
+ F({id:'water',pop:3,n:'Warm water (plain or with lemon / jeera)',role:'drink',sl:['early'],un:'glass',up:'glasses',gu:250,ml:1,k:0,p:0,c:0,f:0,fib:0,t:0,max:1}),
+ F({id:'chai',pop:3,n:'Tea with milk, ½ tsp sugar [chai]',role:'drink',sl:['bf','eve'],un:'cup',up:'cups',gu:150,ml:1,k:55,p:2,c:6,f:2.5,fib:0,diet:'v',alg:['dairy'],tags:['tea','chai'],sw:1,t:5,max:1}),
+ F({id:'chai_ns',pop:3,n:'Tea with milk, no sugar [chai]',role:'drink',sl:['bf','eve'],un:'cup',up:'cups',gu:150,ml:1,k:38,p:2,c:3,f:2,fib:0,diet:'v',alg:['dairy'],tags:['tea','chai'],t:5,max:1}),
+ F({id:'green_tea',n:'Green tea / lemon tea, no sugar',role:'drink',sl:['bf','eve','post','mid'],un:'cup',up:'cups',gu:150,ml:1,k:2,p:0,c:0.5,f:0,fib:0,tags:['tea'],t:5,max:1}),
+ F({id:'buttermilk',pop:3,n:'Buttermilk with roasted jeera [chaas]',role:'drink',sl:['mid','lunch','eve'],un:'glass',up:'glasses',gu:250,ml:1,k:45,p:2.5,c:4,f:2,fib:0,diet:'v',alg:['dairy'],tags:['buttermilk'],gi:'L',t:5,max:1}),
+ F({id:'coconut',n:'Tender coconut water [nariyal paani]',role:'drink',sl:['mid'],un:'glass',up:'glasses',gu:200,ml:1,k:40,p:0.4,c:9,f:0.2,fib:0,tags:['coconut'],cost:2,t:0,max:1}),
+ F({id:'lemon',n:'Lemon water, no sugar [nimbu paani]',role:'drink',sl:['mid','eve'],un:'glass',up:'glasses',gu:250,ml:1,k:5,p:0,c:1.2,f:0,fib:0,tags:['lemon'],t:2,max:1}),
+ // early-morning extras
+ F({id:'soaked_nuts',n:'Soaked almonds (5) + walnut (1) [badam + akhrot]',role:'early',sl:['early'],un:'portion',up:'portions',gu:10,k:66,p:2,c:1.5,f:5.8,fib:1,alg:['nuts'],tags:['nuts'],gi:'L',cost:3,t:0,max:1}),
+ F({id:'chia',pop:1,n:'Soaked chia seeds in water (1 tsp)',role:'early',sl:['early'],un:'glass',up:'glasses',gu:5,gNote:'seeds',k:25,p:0.8,c:2,f:1.5,fib:1.7,tags:['chia'],gi:'L',cost:2,t:0,max:1}),
+ F({id:'pumpkin_seeds',pop:1,n:'Pumpkin seeds (1 tbsp)',role:'early',sl:['early'],un:'tbsp',up:'tbsp',gu:9,gNote:'seeds',k:50,p:2.7,c:1,f:4.2,fib:0.5,tags:['seeds'],gi:'L',cost:2,t:0,max:1}),
+ F({id:'haldi_milk',n:'Turmeric milk, no sugar [haldi doodh]',role:'side',sl:['post'],un:'cup',up:'cups',gu:150,ml:1,k:88,p:4.7,c:7,f:4.5,fib:0,diet:'v',alg:['dairy'],tags:['milk'],gi:'L',t:5,max:1})
+];
+const FAM={eggs:'egg',omelette:'egg',egg_side:'egg',egg_white:'egg',egg_curry:'egg',tofu_bhurji:'tofu',tofu_curry:'tofu',tofu_side:'tofu',paneer_bhurji:'paneer',paneer_sabji:'paneer',palak_paneer:'paneer',paneer:'paneer',curd:'curd',raita:'curd',hung_curd:'curd',milk:'milk',haldi_milk:'milk',chicken_curry:'chicken',chicken_tikka:'chicken',fish_curry:'fish',fish_grill:'fish'};
+DB.forEach(x=>x.fam=FAM[x.id]||x.id);
+const BY={};DB.forEach(x=>BY[x.id]=x);
+
+// ---------- helpers ----------
+const r0=n=>Math.round(+n||0),r1=n=>Math.round((+n||0)*10)/10;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const DIET_RANK={vg:0,v:1,e:2,n:3};
+const ALG_MAP={'Milk':'dairy','Peanuts':'peanut','Gluten / wheat':'gluten','Egg':'egg','Soya':'soy','Dry fruits / nuts':'nuts','Seafood':'fish'};
+const DISLIKE_MAP={'Leafy greens (palak, methi, sarson, bathua)':'glv','Lauki / tori':'lauki','Karela':'karela','Baingan':'baingan','Bhindi':'bhindi','Plain milk':'milk','Mushroom':'mushroom','Oats':'oats','Dalia':'dalia','Soya chunks':'soya'};
+const LIKE_MAP={'Paneer':['paneer'],'Dal':['dal'],'Rajma / chole':['rajma','chole'],'Curd':['curd'],'Poha / upma':['poha','upma'],'Idli / dosa':['idli','dosa','sambar'],'Paratha':['paratha'],'Fruits':['fruit'],'Chana / sprouts':['chana','sprouts'],'Eggs':['egg'],'Chicken':['chicken'],'Fish':['fish']};
+const REGION={'North Indian':'N','South Indian':'S','East Indian':'E','West Indian':'W'};
+const SLOT_NAME={early:'Early morning',bf:'Breakfast',mid:'Mid-morning',lunch:'Lunch',eve:'Evening snack',din:'Dinner',post:'Bedtime'};
+function rng(seed){let s=(seed>>>0)||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296}}
+const low=s=>String(s||'').toLowerCase().trim();
+function textHit(item,word){const w=low(word).replace(/s$/,'');if(w.length<3)return false;const hay=low(item.n+' '+item.tags.join(' ')+' '+item.id);return hay.includes(w)}
+const has=(p,c)=>(p.cond||[]).includes(c);
+
+// ---------- 1. TARGETS ----------
+function computeTargets(p){
+ const m=p.h/100,bmi=p.w/(m*m),age=+p.age,male=p.sex==='m';
+ const bmr=10*p.w+6.25*p.h-5*age+(male?5:-161);
+ const act=+p.act||1.2,tdee=bmr*act;
+ const hMin=18.5*m*m,hMax=22.9*m*m;
+ const warn=[],notes=[],flags=[];let goal=p.goal||'keep';
+ const flag=(lvl,code,text)=>flags.push({lvl,code,text});
+ const minor=age<18,older=age>=65,preg=has(p,'preg')||has(p,'bf'),ed=has(p,'ed'),kid=has(p,'kid'),heart=has(p,'heart'),diab=has(p,'diab');
+ let status='ok';
+ if(minor){goal='keep';status='review';flag('refer','minor','Under 18: FitMentor does not set calorie or weight targets for growing bodies. Please plan meals with your family and a doctor.')}
+ if(ed){goal='keep';status='review';flag('refer','ed','You mentioned an eating disorder (past or current). For your safety there is no weight goal and no calorie numbers. Please make your plan with a doctor, counsellor or registered dietitian.')}
+ if(preg){if(goal==='lose')warn.push('Calories are not reduced during pregnancy or breastfeeding.');goal='keep';status='review';flag('refer','preg','Pregnancy / breastfeeding needs extra energy and nutrients that depend on your stage. Use this only as a draft and follow your doctor or dietitian.')}
+ if(kid){status='review';flag('refer','kid','Kidney problems change how much protein, salt, potassium and fluid you should have. This plan keeps protein moderate (0.8 g/kg) and must be checked by your nephrologist or a renal dietitian before you follow it.')}
+ if(heart){status='review';flag('refer','heart','Heart conditions can need specific salt and fluid limits. Please get this plan checked by your doctor or dietitian.')}
+ if(diab)flag('caution','diab','Diabetes: carbs are spread evenly across meals and sweets are left out. If you take insulin or tablets that can cause low sugar, ask your doctor before cutting calories or changing meal times.');
+ if(has(p,'liver'))flag('caution','liver','Fatty liver: gradual weight loss, little sugar and fried food usually help. Ask your doctor what weight-loss target is right for you.');
+ if(has(p,'thy'))flag('info','thy','Thyroid: if you take thyroid tablets, take them as your doctor told you (usually empty stomach, away from tea, milk and soy).');
+ if(has(p,'uric'))flag('info','uric','Uric acid: drink enough water and go easy on fish and meat portions; check with your doctor.');
+ if(has(p,'pcos'))flag('info','pcos','PCOS: low-GI carbs, enough protein and regular exercise usually help. Your doctor may suggest a specific target.');
+ if(has(p,'acid'))flag('info','acid','Acidity: eat dinner 2–3 hours before sleeping, and keep spicy and fried food low.');
+ if(has(p,'bp'))flag('caution','bp','High BP: keep salt under 5 g a day — no pickle, papad or packet snacks.');
+ if(has(p,'chol'))flag('caution','chol','High cholesterol: paneer and ghee are limited, and more fibre (dal, vegetables, oats) is included.');
+ if((p.condOther||[]).length)flag('caution','other',`You mentioned: ${(p.condOther||[]).join(', ')}. Ask your doctor if any food needs to be avoided.`);
+ if(p.meds)flag('info','meds','You take medicines. Some medicines interact with food (for example thyroid tablets and tea/milk, or diabetes tablets and skipped meals). Show this plan to your doctor.');
+ if(p.wtHist==='lost_unint'){flag('refer','unint','Losing weight without trying needs a doctor’s check-up before starting a diet.');if(goal==='lose')goal='keep'}
+ if(bmi<18.5&&goal==='lose'){goal='keep';flag('refer','under','Your BMI is below 18.5, so FitMentor will not plan weight loss. A doctor can check why.')}
+ if(goal!=='keep'&&p.tw&&p.tw<hMin-0.5)warn.push(`A target of ${p.tw} kg is below the healthy range for your height (${r0(hMin)}–${r0(hMax)} kg). The plan works towards a healthy weight first.`);
+ if(older)flag('info','older','Age 65+: protein is set higher (PROT-AGE) and weight loss is gentler to protect muscle. Strength exercise twice a week matters a lot.');
+ if(bmi>=32.5)flag('info','bmi','At this BMI a doctor-supported weight programme can help, alongside this plan.');
+ if(p.waist&&((male&&p.waist>=90)||(!male&&p.waist>=80)))notes.push(`Waist ${p.waist} cm is above the Asian Indian cut-off (${male?90:80} cm), which signals more belly fat — the plan focuses on that.`);
+
+ // energy
+ const sexFloor=male?1500:1200,floor=Math.max(sexFloor,Math.round(bmr/10)*10);
+ let kcal=tdee,daily=0,deficitWhy='',focus=p.focus||'health';
+ if(goal==='lose'){
+  const months=Math.max(1,+p.tm||6),want=Math.max(0,(p.w-(p.tw||p.w))*7700/(months*30.4));
+  const capPct=(older?0.15:0.20)*tdee,capWeekly=0.01*p.w*7700/7,cap=Math.min(capPct,750,capWeekly);
+  daily=Math.min(want||cap,cap);
+  if(want>cap)warn.push(`Losing ${r1(p.w-p.tw)} kg in ${p.tm} months would need too large a cut. The plan uses a safe, steady pace instead (about ${r1(cap*7/7700)} kg/week), so it will take longer.`);
+  if(daily<150&&want>0)daily=Math.min(150,cap);
+  kcal=tdee-daily;if(kcal<floor){kcal=floor;daily=Math.max(0,tdee-floor);deficitWhy='floor'}
+ }else if(goal==='gain'){daily=-clamp(0.10*tdee,200,350);kcal=tdee-daily}
+ else if(focus==='recomp'&&bmi>=23&&status==='ok'){daily=Math.min(0.10*tdee,300);kcal=Math.max(floor,tdee-daily);daily=tdee-kcal}
+ const adj=clamp(+p.adj||0,-300,300);if(adj&&!ed&&!minor){kcal=Math.max(floor,kcal+adj)}
+ kcal=Math.round(kcal/10)*10;daily=Math.round(tdee-kcal);
+
+ // protein
+ const refW=bmi>25?Math.min(p.w,Math.max(24.9*m*m,p.tw||0)):p.w;
+ const trains=p.train==='strength'||p.train==='mixed'||p.lvl==='i'||p.lvl==='a';
+ let pk=goal==='lose'?(trains?1.6:1.2):goal==='gain'?1.6:focus==='recomp'?1.6:focus==='fitness'?1.2:1.0;
+ if(older)pk=Math.max(pk,1.1);
+ if(preg)pk=Math.max(pk,1.1);
+ let prot=Math.round(refW*pk);
+ prot=Math.max(prot,Math.round(0.83*p.w*(bmi>25?refW/p.w:1)));
+ if(kid){pk=0.8;prot=Math.round(0.8*refW)}
+ prot=Math.min(prot,Math.round(kcal*0.32/4),Math.round(2.0*p.w));
+ // fat & carbs
+ let fatPct=0.27,fat=Math.round(kcal*fatPct/9),carb=Math.round((kcal-prot*4-fat*9)/4);
+ if(carb<130){fatPct=0.22;fat=Math.round(kcal*fatPct/9);carb=Math.round((kcal-prot*4-fat*9)/4)}
+ if(carb<130&&!kid){prot=Math.max(Math.round(0.83*refW),prot-Math.ceil((130-carb)));carb=Math.round((kcal-prot*4-fat*9)/4)}
+ const fib=Math.round(Math.min(40,Math.max(25,kcal/1000*20)));
+ const water=r1(clamp(0.03*p.w,1.6,3.0)+(act>=1.55?0.5:0)),waterDoc=heart||kid;
+ const cur=+p.cur||0;
+ const steps=older?Math.max(6000,Math.min(8000,(cur||5000)+1500)):goal==='lose'?Math.max(7000,Math.min(10000,(cur||5000)+2000)):goal==='gain'?7000:8000;
+ const weeksNeeded=goal==='lose'&&daily>0?(p.w-(p.tw||p.w))*7700/(daily*7):goal==='gain'&&daily<0?((p.tw||p.w)-p.w)*7700/(-daily*7):0;
+ const sugar=diab?0:25;
+ const check=prot*4+carb*4+fat*9;
+ return{bmi,bmr,tdee,kcal,p:prot,c:carb,f:fat,fib,salt:5,sugar,water,waterDoc,steps,daily,goal,goalReq:p.goal,warn,notes,flags,noCal:ed||minor,minor,status,weeksNeeded,hMin,hMax,refW,pk,fatPct,floor,check,adj,act,focus,trains};
+}
+
+// ---------- 2. FILTERS ----------
+function rules(p){
+ const dRank=DIET_RANK[p.diet]??1;
+ const algs=(p.allergies||[]).map(a=>ALG_MAP[a]||a);
+ const dislikes=(p.dislikes||[]).map(x=>DISLIKE_MAP[x]||x);
+ const budget=+p.budget||0,bTier=budget&&budget<120?1:budget&&budget<250?2:3;
+ const cookMax={'15 min':20,'30 min':40,'60 min':90,'someone cooks':120}[p.cook]||40;
+ const diab=has(p,'diab'),pcos=has(p,'pcos');
+ return{dRank,algs,dislikes,bTier,cookMax,diab,pcos,kid:has(p,'kid'),sfLimit:(has(p,'chol')||has(p,'heart')||has(p,'liver'))?1:3,region:REGION[p.cuisine]||'',grain:p.grain||'',likes:(p.likes||[]).flatMap(l=>LIKE_MAP[l]||[low(l)])};
+}
+function why(item,R){ // returns '' if allowed, otherwise reason
+ if(DIET_RANK[item.diet]>R.dRank)return'diet';
+ for(const a of R.algs){if(item.alg.includes(a)||(!ALG_MAP[a]&&textHit(item,a)))return'allergy'}
+ for(const d of R.dislikes){if(item.tags.includes(d)||textHit(item,d))return'dislike'}
+ if(item.cost>R.bTier)return'budget';
+ if(item.t>R.cookMax)return'time';
+ if((R.diab||R.pcos)&&(item.sw||item.gi==='H'||item.id==='banana'))return'condition';
+ return'';
+}
+const ok=(item,R)=>!why(item,R);
+function likeScore(item,R){let s=0;for(const l of R.likes){if(item.tags.includes(l)||textHit(item,l))s+=2}if(R.region&&item.reg.includes(R.region))s+=1;if(R.region&&item.reg.length&&!item.reg.includes(R.region))s-=0.5;return s}
+
+// ---------- 3. NUTRITION OF ITEMS / MEALS ----------
+function nut(id,q){const x=BY[id];if(!x)return{k:0,p:0,c:0,f:0,fib:0,oil:0};return{k:x.k*q,p:x.p*q,c:x.c*q,f:x.f*q,fib:x.fib*q,oil:x.oil*q}}
+function addN(a,b){a.k+=b.k;a.p+=b.p;a.c+=b.c;a.f+=b.f;a.fib+=b.fib;a.oil+=b.oil;return a}
+const zero=()=>({k:0,p:0,c:0,f:0,fib:0,oil:0});
+function mealTot(m){return m.items.reduce((a,it)=>addN(a,nut(it.id,it.q)),zero())}
+function dayTot(d){return d.meals.reduce((a,m)=>addN(a,mealTot(m)),zero())}
+function qtyText(id,q){const x=BY[id];if(!x)return'';const n=q%1===0?q:q.toFixed(1).replace(/\.0$/,'');const half=q===0.5;
+ const unit=x.un==='katori'||x.un==='½ cup'||x.un==='tbsp'?x.un:(q>1?x.up:x.un);
+ const w=Math.round(x.gu*q);let meas=x.ml?`${w} ml`:x.gNote?`${w} g ${x.gNote}`:`${w} g`;
+ if(x.raw){const rv=Math.round(x.raw*q*10)/10;meas+=` · ${x.rawN?rv+' '+x.rawL:rv+' g '+x.rawL}`}
+ return `${half&&x.un!=='katori'?'½':n} ${unit} (${meas})`}
+
+// ---------- 4. PLAN BUILDER ----------
+const SHARES={3:{bf:.30,lunch:.37,din:.33},4:{bf:.25,lunch:.33,eve:.12,din:.30},5:{early:.03,bf:.22,mid:.06,lunch:.30,eve:.12,din:.27},6:{early:.03,bf:.21,mid:.06,lunch:.28,eve:.11,din:.25,post:.06}};
+const toMin=s=>{const [h,m]=String(s||'07:00').split(':').map(Number);return (h||0)*60+(m||0)};
+const fromMin=m=>{m=((m%1440)+1440)%1440;let h=Math.floor(m/60),mm=m%60;const ap=h>=12?'pm':'am';h=h%12||12;return `${h}:${String(mm).padStart(2,'0')} ${ap}`};
+function times(p,slots){let w=toMin(p.wake||'07:00'),s=toMin(p.sleep||'23:00');if(s<=w)s+=1440;const awake=s-w;
+ const T={early:w+20,bf:w+Math.min(120,Math.max(60,awake*0.1)),lunch:w+Math.round(awake*0.42),din:Math.max(w+Math.round(awake*0.78),s-180)};
+ T.mid=Math.round((T.bf+T.lunch)/2);T.eve=Math.round((T.lunch+T.din)/2);T.post=s-45;
+ const o={};slots.forEach(k=>o[k]=fromMin(Math.round(T[k]/15)*15));return o}
+
+function pools(R,p){const all=DB.filter(x=>ok(x,R));const by=(role,slot)=>all.filter(x=>x.role===role&&(!slot||x.sl.includes(slot)));return{all,by}}
+function cerealFor(slot,R,p,P,day){
+ const glutenFree=R.algs.includes('gluten');const g=R.grain;
+ const rotiId=glutenFree?(g==='Ragi'?'ragi':g==='Bajra / jowar'?'jowar':'jowar'):g==='Multigrain atta'?'roti_mg':g==='Atta + bran'?'roti_bran':g==='Bajra / jowar'?(day%2?'bajra':'jowar'):g==='Ragi'?'ragi':'roti';
+ const riceId=R.diab&&ok(BY.brown_rice,R)?'brown_rice':'rice';
+ const riceFirst=g==='Mostly rice'||R.region==='S'||R.region==='E';
+ let pick;
+ if(slot==='lunch')pick=riceFirst?riceId:(day%3===2&&!R.diab?riceId:rotiId);
+ else pick=riceFirst&&day%2===0?riceId:rotiId;
+ if(!ok(BY[pick],R))pick=[rotiId,'jowar','bajra','ragi','rice','brown_rice'].find(id=>BY[id]&&ok(BY[id],R)&&BY[id].sl.includes(slot));
+ return pick||null}
+function choose(list,rand,R,avoid,n=1){const sc=list.map(x=>({x,s:likeScore(x,R)+rand()*1.6-(avoid.includes(x.id)?4:0)+(x.pop===1?-1.5:x.pop===3?0.5:0)})).sort((a,b)=>b.s-a.s);return sc.slice(0,n).map(o=>o.x)}
+
+function buildPlan(p,t,opt={}){
+ const R=rules(p),seed=opt.seed||((Date.now()%1e9)|0),rand=rng(seed),{by}=pools(R,p);
+ const nMeals=clamp(+p.meals||5,3,6),SH=SHARES[nMeals],slots=['early','bf','mid','lunch','eve','din','post'].filter(s=>SH[s]!==undefined||(s==='early'));
+ const T=times(p,slots);const tea=p.tea!=='no';
+ const teaId=R.dRank<1||R.algs.includes('dairy')?'green_tea':(R.diab||R.pcos||t.status!=='ok'?'chai_ns':'chai');
+ const days=[],hist={bf:[],pm:[],veg:[],snack:[],fruit:[],dpm:[]},week={};
+ const nDays=opt.days||7,start=opt.start||new Date().toISOString().slice(0,10);
+ const kT=t.noCal?Math.round(t.tdee/10)*10:t.kcal;
+ for(let d=0;d<nDays;d++){
+  const meals=[];const used=new Set();
+  const M=(slot,items)=>meals.push({slot,name:SLOT_NAME[slot],time:T[slot],items:items.filter(Boolean)});
+  const I=(id,q,o={})=>{if(!id||!BY[id])return null;used.add(id);return Object.assign({id,q:q??BY[id].def},o)};
+  // early
+  const early=[I('water',1)];
+  if(nMeals>=5){const ex=choose(by('early'),rand,R,[],1)[0];if(ex)early.push(I(ex.id,1,{opt:1}))}
+  M('early',early);
+  // breakfast
+  let bfPool=by('bf','bf').concat(by('egg','bf'));const bfB=choose(bfPool,rand,R,hist.bf.slice(-2),1)[0];
+  const bf=[];if(bfB){bf.push(I(bfB.id,undefined,{lock:1}));hist.bf.push(bfB.id);(bfB.with||[]).forEach(([id,q])=>{if(ok(BY[id],R))bf.push(I(id,q,{opt:1}))});
+   if(bfB.id==='paneer_bhurji'||bfB.id==='tofu_bhurji'||bfB.role==='egg'){const c=cerealFor('lunch',R,p,null,1);const cc=c&&BY[c].un==='roti'?c:null;if(cc)bf.push(I(cc,1))}}
+  if(tea&&ok(BY[teaId],R))bf.push(I(teaId,1,{opt:1}));
+  M('bf',bf);
+  if(SH.mid!==undefined){const fr=choose(by('fruit','mid').concat(by('drink','mid').filter(x=>x.k>=30)),rand,R,hist.fruit.slice(-1),1)[0];if(fr){hist.fruit.push(fr.id);M('mid',[I(fr.id,1)])}}
+  // lunch
+  const lc=cerealFor('lunch',R,p,null,d);
+  let lpPool=by('pmain','lunch');
+  if(R.dRank>=3&&d%2===1)lpPool=lpPool.filter(x=>x.diet==='n'||x.diet==='e').concat(lpPool.filter(x=>x.tags.includes('dal')));
+  else lpPool=lpPool.filter(x=>x.tags.some(tg=>['dal','rajma','chole','chana','sambar'].includes(tg)))
+  const lp=choose(lpPool.length?lpPool:by('pmain','lunch'),rand,R,hist.pm.slice(-2),1)[0];if(lp)hist.pm.push(lp.id);
+  const lv=choose(by('veg','lunch'),rand,R,hist.veg.slice(-2),1)[0];if(lv)hist.veg.push(lv.id);
+  M('lunch',[lc&&I(lc,BY[lc].un==='roti'?2:1),lp&&I(lp.id,1,{lock:1}),lv&&I(lv.id,1),ok(BY.salad,R)&&I('salad',1)]);
+  // evening
+  if(SH.eve!==undefined){const sn=choose(by('snack','eve').concat(by('fruit','eve')).concat(by('bf','eve')),rand,R,hist.snack.slice(-2),1)[0];const ev=[];if(sn){hist.snack.push(sn.id);ev.push(I(sn.id))}
+   if(tea&&ok(BY[teaId],R))ev.push(I(teaId,1,{opt:1}));M('eve',ev)}
+  // dinner
+  const dinOne=d%3===1&&ok(BY.khichdi,R);
+  let dpPool=by('pmain','din').filter(x=>!lp||x.id!==lp.id).filter(x=>!['rajma','chole'].includes(x.id));
+  const dense=dpPool.filter(x=>x.p/x.k>0.055);
+  const dp=dinOne?null:choose(dense.length&&d%2===0?dense:dpPool,rand,R,hist.dpm.slice(-2).concat(lp?[lp.id]:[]),1)[0];if(dp)hist.dpm.push(dp.id);
+  const dv=choose(by('veg','din').filter(x=>!lv||x.id!==lv.id),rand,R,hist.veg.slice(-2),1)[0];if(dv)hist.veg.push(dv.id);
+  if(dinOne)M('din',[I('khichdi',1),dv&&I(dv.id,1),ok(BY.salad,R)&&I('salad',1)]);
+  else{const dc=cerealFor('din',R,p,null,d);M('din',[dc&&I(dc,BY[dc].un==='roti'?2:1),dp&&I(dp.id,1),dv&&I(dv.id,1),ok(BY.salad,R)&&I('salad',0.5)])}
+  if(SH.post!==undefined){const pm=['haldi_milk','soymilk','apple','papaya','pear'].map(id=>BY[id]).filter(x=>x&&ok(x,R));const pk=choose(pm,rand,R,[],1)[0];if(pk)M('post',[I(pk.id,1)])}
+  const day={date:addDays(start,d),meals};
+  solveDay(day,t,R,SH,kT,week);
+  day.meals.forEach(m=>m.items.forEach(i=>week[i.id]=(week[i.id]||0)+1));
+  days.push(day);
+ }
+ const minP=Math.min(...days.map(d=>dayTot(d).p)),notes=[];
+ if(minP<t.p*0.9)notes.push(`With your food choices and restrictions, some days reach only about ${Math.round(minP)} g protein (target ${t.p} g). Easy fixes: add a katori of curd or sprouts, or swap a snack for roasted chana${R.dRank>=2?' or 2 boiled eggs':''}. A registered dietitian can help if this keeps happening.`);
+ return{ver:2,created:new Date().toISOString().slice(0,10),seed,days,kT,meals:nMeals,shares:SH,tea,teaId,notes};
+}
+function addDays(iso,n){const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+
+// ---------- 5. PORTION SOLVER (greedy local search) ----------
+const STAPLE=new Set(['salad','roti','roti_bran','roti_mg','jowar','bajra','ragi','rice','brown_rice','water','chai','chai_ns','green_tea','curd']);
+const SIDE_ORDER=['curd','hung_curd','sprouts','paneer','egg_side','egg_white','tofu_side','milk','soymilk','raita'];
+function score(day,t,R,SH,kT,week){
+ const T=dayTot(day),Pt=t.p,Ft=t.f,fibT=t.fib;let J=0;
+ const eK=Math.abs(T.k-kT)/kT;J+=12*eK+(eK>0.04?60*(eK-0.04):0);
+ if(T.p<Pt)J+=20*(Pt-T.p)/Pt;else if(R.kid&&T.p>Pt*1.05)J+=45*(T.p-Pt*1.08)/Pt;else if(T.p>Pt*1.25)J+=3*(T.p-Pt*1.25)/Pt;
+ const Fmax=Math.max(Ft*1.1,kT*0.31/9);if(T.f>Fmax)J+=9*(T.f-Fmax)/Ft;
+ if(T.c<130)J+=6*(130-T.c)/130;
+ if(T.fib<fibT*0.8)J+=2.5*(fibT*0.8-T.fib)/fibT;
+ let sf=0;const seen={};
+ day.meals.forEach(m=>{const mt=mealTot(m),sh=SH[m.slot]||0;J+=1.6*Math.abs(mt.k-sh*kT)/kT;
+  if(R.diab&&['bf','lunch','din'].includes(m.slot)&&T.c>0&&mt.c>0.4*T.c)J+=4*(mt.c-0.4*T.c)/T.c;
+  m.items.forEach(it=>{const x=BY[it.id];if(x.sf)sf++;if(it.add)J+=0.04+(x.pop===1?0.45:0.15*(3-x.pop));seen[x.fam]=(seen[x.fam]||0)+1;if(week&&week[it.id]&&!STAPLE.has(it.id))J+=0.1*week[it.id]})});
+ for(const id in seen){if(seen[id]>1&&!STAPLE.has(id)&&!['roti','rice'].includes(id))J+=1.2*(seen[id]-1)}
+ if(sf>R.sfLimit)J+=3*(sf-R.sfLimit);
+ return J}
+function solveDay(day,t,R,SH,kT,week){
+ const sc=()=>score(day,t,R,SH,kT,week);
+ let best=sc();
+ const swapPool={};['pmain','side','snack','egg'].forEach(role=>swapPool[role]=DB.filter(x=>x.role===role&&ok(x,R)&&(x.fam!=='tofu'||R.dRank===0||role==='pmain')));
+ for(let iter=0;iter<150;iter++){
+  let bestMove=null,bestJ=best-1e-4;
+  const tryMove=(apply,undo)=>{apply();const j=sc();if(j<bestJ){bestJ=j;bestMove={apply,undo}}undo()};
+  const inDay=new Set();day.meals.forEach(m=>m.items.forEach(i=>inDay.add(i.id)));
+  day.meals.forEach(m=>{
+   m.items.forEach((it,ii)=>{const x=BY[it.id];if(x.role==='drink'&&x.k<10)return;
+    [x.step,-x.step].forEach(dq=>{const nq=Math.round((it.q+dq)*10)/10;if(nq<x.min-1e-9||nq>x.max+1e-9)return;tryMove(()=>{it.q=nq},()=>{it.q=Math.round((nq-dq)*10)/10})});
+    if(it.opt||it.add){tryMove(()=>{m.items.splice(ii,1)},()=>{m.items.splice(ii,0,it)})}
+    // swap a protein food / snack for another allowed one (portion reset to default)
+    if(swapPool[x.role]&&!it.lock){const fams=new Set(m.items.filter(o=>o!==it).map(o=>BY[o.id].fam));swapPool[x.role].filter(y=>y.id!==x.id&&y.sl.includes(m.slot)&&!inDay.has(y.id)&&!fams.has(y.fam)).forEach(y=>{const o={id:it.id,q:it.q};tryMove(()=>{it.id=y.id;it.q=y.def},()=>{it.id=o.id;it.q=o.q})})}
+   });
+   const nSides=m.items.filter(i=>BY[i.id].role==='side').length;
+   if(['bf','lunch','din','eve'].includes(m.slot)&&nSides<2){
+    SIDE_ORDER.map(id=>BY[id]).filter(x=>x&&ok(x,R)&&x.sl.includes(m.slot)&&!m.items.some(i=>BY[i.id].fam===x.fam)&&(x.fam!=='tofu'||R.dRank===0)).forEach(x=>{const ni={id:x.id,q:x.def,add:1};tryMove(()=>{m.items.push(ni)},()=>{m.items.pop()})})}
+   if(['mid','eve','post','bf'].includes(m.slot)&&!m.items.some(i=>BY[i.id].role==='fruit')){
+    ['apple','papaya','guava','orange','pear'].map(id=>BY[id]).filter(x=>x&&ok(x,R)&&x.sl.includes(m.slot)).slice(0,2).forEach(x=>{const ni={id:x.id,q:1,add:1};tryMove(()=>{m.items.push(ni)},()=>{m.items.pop()})})}
+  });
+  if(dayTot(day).p<t.p*0.97){
+   const trims=[];day.meals.forEach(m=>m.items.forEach(it=>{const x=BY[it.id];if(['cereal','fruit','snack','bf','early','onepot'].includes(x.role)&&it.q-x.step>=x.min-1e-9)trims.push(it)}));
+   const withTrim=(apply,undo)=>trims.forEach(tr=>{const st=BY[tr.id].step;tryMove(()=>{apply();tr.q=Math.round((tr.q-st)*10)/10},()=>{tr.q=Math.round((tr.q+st)*10)/10;undo()})});
+   day.meals.forEach(m=>{
+    if(['bf','lunch','din','eve'].includes(m.slot)&&m.items.filter(i=>BY[i.id].role==='side').length<2){
+     SIDE_ORDER.map(id=>BY[id]).filter(x=>x&&ok(x,R)&&x.sl.includes(m.slot)&&!m.items.some(i=>BY[i.id].fam===x.fam)&&(x.fam!=='tofu'||R.dRank===0)).forEach(x=>{const ni={id:x.id,q:x.def,add:1};withTrim(()=>{m.items.push(ni)},()=>{m.items.pop()})})}
+    m.items.forEach(it=>{const x=BY[it.id];if(['pmain','side','egg'].includes(x.role)&&it.q+x.step<=x.max+1e-9)withTrim(()=>{it.q=Math.round((it.q+x.step)*10)/10},()=>{it.q=Math.round((it.q-x.step)*10)/10})})});
+  }
+  if(!bestMove)break;bestMove.apply();best=bestJ;
+ }
+ day.score=best;return day}
+
+// ---------- 6. SUBSTITUTIONS ----------
+const SWAP_ROLES={cereal:['cereal'],bf:['bf','egg'],egg:['egg','bf'],pmain:['pmain'],onepot:['onepot'],veg:['veg'],salad:['salad'],side:['side'],fruit:['fruit','snack'],snack:['snack','fruit'],drink:['drink'],early:['early']};
+function swapOptions(p,plan,di,mi,ii){
+ const R=rules(p),m=plan.days[di].meals[mi],it=m.items[ii],x=BY[it.id];if(!x)return[];
+ const roles=SWAP_ROLES[x.role]||[x.role],o=nut(it.id,it.q),proteinRole=['pmain','side','bf','egg','onepot'].includes(x.role);
+ const inMeal=new Set(m.items.map(i=>i.id));
+ return DB.filter(y=>y.id!==x.id&&roles.includes(y.role)&&y.sl.includes(m.slot)&&!inMeal.has(y.id)&&ok(y,R)).map(y=>{
+  let q=proteinRole&&y.p>=1&&o.p>=2?o.p/y.p:(y.k>0?o.k/y.k:1);q=clamp(Math.round(q/y.step)*y.step,y.min,y.max);
+  const n=nut(y.id,q),dk=n.k-o.k,dp=n.p-o.p;
+  const notes=[];if(Math.abs(dk)>Math.max(40,o.k*0.2))notes.push(`${dk>0?'+':'−'}${r0(Math.abs(dk))} kcal`);if(proteinRole&&Math.abs(dp)>=3)notes.push(`${dp>0?'+':'−'}${r0(Math.abs(dp))} g protein`);if(y.sf&&!x.sf)notes.push('higher saturated fat');
+  return{id:y.id,n:y.n,q,amt:qtyText(y.id,q),k:r0(n.k),p:r1(n.p),c:r1(n.c),f:r1(n.f),dk:r0(dk),dp:r1(dp),notes,fit:Math.abs(dk)/Math.max(o.k,50)+(proteinRole?Math.abs(dp)/Math.max(o.p,5):0)-likeScore(y,R)*0.08}
+ }).sort((a,b)=>a.fit-b.fit).slice(0,6)}
+function applySwap(plan,di,mi,ii,id,q){const it=plan.days[di].meals[mi].items[ii];const from=it.id;it.id=id;it.q=q;it.sw=from;return plan}
+
+// ---------- 7. WEEKLY REVIEW (adaptive) ----------
+function weeklyReview(p,t,weights,logs,checkin,today){
+ today=today||new Date().toISOString().slice(0,10);
+ const dayDiff=(a,b)=>Math.round((new Date(a+'T12:00')-new Date(b+'T12:00'))/864e5);
+ const W=Object.keys(weights||{}).filter(d=>dayDiff(today,d)>=0&&dayDiff(today,d)<28).sort();
+ const avg=(from,to)=>{const v=W.filter(d=>{const x=dayDiff(today,d);return x>=from&&x<to}).map(d=>+weights[d]);return v.length?{v:v.reduce((a,b)=>a+b,0)/v.length,n:v.length}:null};
+ const w1=avg(0,7),w2=avg(7,14),w3=avg(14,21);
+ const L=[];for(let i=0;i<14;i++){const d=addDays(today,-i);const f=(logs[d]&&logs[d].food)||[];if(f.length)L.push(f.reduce((a,x)=>a+(+x.k||0),0))}
+ const logDays=L.length,avgK=logDays?L.reduce((a,b)=>a+b,0)/logDays:null;
+ const adherent=logDays>=10&&avgK!=null&&Math.abs(avgK-t.kcal)/t.kcal<=0.12;
+ const stats={w1:w1&&r1(w1.v),w2:w2&&r1(w2.v),w3:w3&&r1(w3.v),n:W.length,logDays,avgK:avgK&&r0(avgK)};
+ const out={stats,msgs:[],rec:{type:'none',delta:0,reason:''},ready:false};
+ const ci=checkin||{};
+ if(t.noCal||t.status==='review'){out.msgs.push('Your plan is in “professional review” mode, so FitMentor will not change calorie targets automatically. Share your weekly weights with your doctor or dietitian.');return out}
+ if(!w1||!w2||w1.n<2||w2.n<2){out.msgs.push('Not enough data yet. Weigh yourself 2–3 times a week (morning, after the toilet, before eating) for 2 weeks. Single weigh-ins jump around with water and salt, so FitMentor only uses weekly averages.');return out}
+ out.ready=true;
+ const rate=(w2.v-w1.v)/w2.v*100;stats.rate=r1(rate*100)/100;stats.kgWk=r1(w2.v-w1.v);
+ const slow3=w3&&w3.n>=2?((w3.v-w1.v)/w3.v*100/2):null;
+ const hungry=+ci.hunger>=4,tired=+ci.energy<=2,weak=+ci.perf<=2;
+ if(t.goal==='lose'){
+  if(rate>1.0||(rate>0.8&&(tired||weak))){out.rec={type:'adjust',delta:+150,reason:`You lost ${r1(w2.v-w1.v)} kg in a week (${r1(rate)}% of your weight). That is faster than the safe range${tired||weak?' and you feel low on energy':''}. Adding ~150 kcal protects muscle and energy.`}}
+  else if(rate>=0.25){out.msgs.push(`On track: about ${r1(w2.v-w1.v)} kg/week (${r1(rate)}% of body weight). No change needed.`);if(hungry)out.msgs.push('Feeling hungry? Swap to higher-fibre and higher-protein options (dal, sprouts, salad, curd) — calories stay the same.')}
+  else{
+   if(slow3===null||slow3>=0.25){out.msgs.push('Weight barely moved this week. One slow week is normal (water, salt, periods, a heavy meal). Keep going — FitMentor needs 3 weeks of data before changing anything.')}
+   else if(logDays<10){out.msgs.push(`Weight has been flat for 3 weeks, but you logged food on only ${logDays} of the last 14 days. Before cutting calories, log your meals for a week — portions often grow without us noticing (oil, rice, snacks).`)}
+   else if(!adherent){out.msgs.push(`Weight has been flat for 3 weeks. Your logged average is ${r0(avgK)} kcal against a target of ${t.kcal}. Getting closer to the plan first is the best next step.`)}
+   else{const room=t.kcal-t.floor;if(room>=100)out.rec={type:'adjust',delta:-Math.min(150,room),reason:`Weight has stayed flat for 3 weeks even though you followed the plan (about ${r0(avgK)} kcal/day). Your real maintenance is probably a bit lower than the formula estimated. Cutting ~${Math.min(150,room)} kcal or adding ~2,000 steps a day should restart progress.`};
+    else out.msgs.push('You are already at the lowest safe calorie level for you. Instead of eating less, add 2,000 steps a day and 2 strength sessions a week, and talk to a doctor or dietitian.')}
+  }
+ }else if(t.goal==='gain'){
+  if(rate<-0.5)out.rec={type:'adjust',delta:-100,reason:'You are gaining faster than 0.5% a week, which adds mostly fat. A small reduction keeps the gain lean.'};
+  else if(rate>-0.1&&slow3!==null&&slow3>-0.1&&logDays>=10)out.rec={type:'adjust',delta:+150,reason:'Weight has not gone up in 3 weeks while you followed the plan. Adding ~150 kcal (for example 1 glass of milk or a handful of chana) supports steady gain.'};
+  else out.msgs.push('Gain is within a steady range. Keep training and eating to plan.');
+ }else{
+  if(Math.abs(w1.v-(w3||w2).v)>1.2&&logDays>=10)out.rec={type:'adjust',delta:w1.v>(w3||w2).v?-100:+100,reason:`Weight has drifted ${r1(Math.abs(w1.v-(w3||w2).v))} kg over 2–3 weeks while you aimed to maintain. A small ${w1.v>(w3||w2).v?'reduction':'increase'} brings it back.`};
+  else out.msgs.push('Weight is stable — your plan matches your needs.');
+ }
+ if(Math.abs(p.w-w1.v)>=2)out.msgs.push(`Your average weight (${r1(w1.v)} kg) is ${r1(Math.abs(p.w-w1.v))} kg different from your plan weight (${p.w} kg). Updating your plan weight will recalculate your targets.`);
+ return out}
+
+// ---------- 8. EXPLANATIONS & GUIDANCE ----------
+function explain(p,t){
+ const ex=[],act={1.2:'mostly sitting',1.375:'lightly active',1.55:'active',1.725:'very active'}[t.act]||'your activity';
+ if(!t.noCal){
+  ex.push({h:'Your energy need',t:`Your body burns about ${r0(t.bmr)} kcal a day at rest (Mifflin-St Jeor equation, the most reliable common formula). Being ${act} raises this to about ${r0(t.tdee)} kcal — your “maintenance”. Real needs can differ by ±10%, which is why FitMentor checks your weight trend and adjusts.`,src:['MSJ']});
+  if(t.goal==='lose')ex.push({h:'Why '+t.kcal+' kcal',t:`That is ${r0(t.daily)} kcal below maintenance, for roughly ${r1(t.daily*7/7700)} kg loss a week. FitMentor keeps the gap to at most 20% of maintenance and 1% of body weight a week, and never goes below ${t.floor} kcal, because very low intakes cost muscle and are hard to keep up.${t.adj?` Includes a ${t.adj>0?'+':''}${t.adj} kcal adjustment from your weekly review.`:''}`,src:['NICE','NHS-RATE']});
+  else if(t.goal==='gain')ex.push({h:'Why '+t.kcal+' kcal',t:`About ${r0(-t.daily)} kcal above maintenance. A small surplus with strength training builds muscle with less fat gain.`,src:['MORTON']});
+  else ex.push({h:'Why '+t.kcal+' kcal',t:t.daily>0?`Slightly below maintenance (−${r0(t.daily)} kcal) to slowly reduce fat while you build muscle.`:`This matches your maintenance, so your weight should stay steady.`,src:['MSJ']});
+ }
+ ex.push({h:`Protein ${t.p} g a day`,t:`That is about ${r1(t.p/t.refW)} g per kg of ${t.refW<p.w-0.5?`a reference weight of ${r0(t.refW)} kg (FitMentor uses the weight at BMI 25 rather than your full weight when BMI is high)`:'your weight'}. ${t.goal==='lose'?'During weight loss, more protein than the basic RDA helps keep muscle.':t.goal==='gain'||t.focus==='recomp'?'Muscle gain levels off around 1.6 g/kg, so more is not needed.':'This covers the ICMR minimum (0.83 g/kg) with room for activity.'}${t.pk===0.8?' Kept at 0.8 g/kg because of kidney health (KDIGO).':''} Each main meal has a protein food so it is spread across the day.`,src:t.pk===0.8?['KDIGO','ICMR-RDA']:t.goal==='lose'?['HUDSON','ICMR-RDA','SCHOENFELD']:['MORTON','ICMR-RDA','SCHOENFELD']});
+ ex.push({h:`Carbs ${t.c} g · Fat ${t.f} g · Fibre ${t.fib} g`,t:`Fat is ${r0(t.fatPct*100)}% of calories (WHO and ICMR advise ≤30%); carbs make up the rest and stay above the 130 g/day minimum for the brain. Fibre comes from dal, vegetables, whole grains and fruit — ICMR suggests about 40 g per 2,000 kcal.${t.flags.some(f=>f.code==='diab')?' Carbs are spread evenly across meals to avoid sugar spikes.':''}`,src:['WHO-FAT','ICMR-RDA','ICMR-DGI']});
+ ex.push({h:'Salt, sugar and oil',t:`Salt under 5 g a day (about 1 level teaspoon, including what is already in food). ${t.sugar?`Added sugar 25 g or less (about 5 teaspoons).`:'No added sugar.'} The oil in this plan is counted inside each dish — measure it with a teaspoon.`,src:['WHO-SALT','ICMR-PLATE']});
+ return ex}
+function guidance(p,t,plan){
+ const R=rules(p),g={};
+ g.water=!t.waterDoc?`About ${t.water} litres of fluids a day (water, buttermilk, tea and dal count). More on hot days and on exercise days. Pale-yellow urine is a good sign.`:'Follow the fluid amount your doctor has told you — kidney and heart conditions can need limits.';
+ g.include=['Half your plate as vegetables and salad at lunch and dinner','A protein food (dal, curd, paneer, eggs, sprouts, chicken or fish) in every main meal','Whole grains: atta with bran, millets (jowar, bajra, ragi), brown rice'];
+ if(p.diet==='vg')g.include.push('Vegan: a reliable vitamin B12 source (fortified foods or a supplement your doctor suggests), plus calcium from tofu, ragi and sesame, and vitamin D from sunlight or a doctor-advised test');
+ g.limit=['Fried snacks (samosa, pakode, puri), maida and bakery items','Sweets, cold drinks and packet juices','Pickle, papad, namkeen and instant noodles (very salty)','Eating out more than once a week — choose tandoori / grilled, dal, salad'];
+ if(R.diab)g.limit.push('White rice in large amounts, sweet fruits (mango, chikoo, grapes) and fruit juice');
+ if(R.sfLimit===1)g.limit.push('Ghee, butter, cream and full-fat paneer (max one small portion a day)');
+ const days=t.goal==='lose'?'4–5':'3–4';
+ g.exercise=`WHO advises 150–300 minutes of moderate activity a week plus muscle-strengthening on 2 or more days. For you: brisk walking or cycling on most days (target ${t.steps.toLocaleString('en-IN')} steps), and strength training ${days} days a week from your FitMentor workout plan${p.age>=65?' — include balance exercises':''}.`;
+ g.rules=['Measure with the same katori (150 ml) and teaspoon every day','Eat dinner 2–3 hours before sleeping','Weigh yourself 2–3 times a week, same time, and look at the weekly average'];
+ g.oil=plan?r1(plan.days.reduce((a,d)=>a+dayTot(d).oil,0)/plan.days.length):null;
+ return g}
+
+return{_score:score,SOURCES,DB,BY,computeTargets,buildPlan,solveDay,swapOptions,applySwap,weeklyReview,explain,guidance,mealTot,dayTot,qtyText,rules,why,ok,nut,SLOT_NAME,times,addDays};
+})();
+
+
+/*FMN-END*/
+
 // ================= state =================
 let P=S.get('profile2',null);
+if(P&&(!P.t||!P.t.flags)){try{P.t=FMN.computeTargets(P);S.set('profile2',P)}catch(e){}}
 let log=S.get('log',{});
 let weights=S.get('weights',{});
 let diet=P?P.diet:S.get('diet','v');
-const dietOK=d=>(d||'v')==='v'||(d==='e'&&diet!=='v')||(d==='n'&&diet==='n');
-const DIETNAME={v:'Vegetarian',e:'Eggetarian',n:'Non-veg'};
+const dietOK=d=>(d||'v')==='v'||(d==='e'&&(diet==='e'||diet==='n'))||(d==='n'&&diet==='n');
+const DIETNAME={vg:'Vegan',v:'Vegetarian',e:'Eggetarian',n:'Non-veg'};
 $('day').value=today();
 const curDay=()=>$('day').value||today();
 function dayLog(d){d=d||curDay();if(!log[d])log[d]={food:[],water:0,steps:0};return log[d]}
@@ -1047,16 +1525,16 @@ const condList=sex=>COND_COMMON.concat(sex==='f'?COND_F:sex==='m'?COND_M:[]);
 const COND=COND_COMMON.concat(COND_F);
 const condName=c=>(COND.find(x=>x[0]===c)||[,c])[1];
 const ALG=['Milk','Peanuts','Gluten / wheat','Egg','Soya','Dry fruits / nuts','Seafood'];
-const LIKES=d=>['Paneer','Dal','Rajma / chole','Curd','Poha / upma','Idli / dosa','Paratha','Fruits','Chana / sprouts'].concat(d!=='v'?['Eggs']:[]).concat(d==='n'?['Chicken','Fish']:[]);
+const LIKES=d=>(d==='vg'?[]:['Paneer','Curd']).concat(['Dal','Rajma / chole','Poha / upma','Idli / dosa','Paratha','Fruits','Chana / sprouts']).concat(d==='e'||d==='n'?['Eggs']:[]).concat(d==='n'?['Chicken','Fish']:[]);
 const DISLIKES=['Leafy greens (palak, methi, sarson, bathua)','Lauki / tori','Karela','Baingan','Bhindi','Plain milk','Mushroom','Oats','Dalia','Soya chunks'];
 const GRAINS=['Wheat atta','Multigrain atta','Atta + bran','Bajra / jowar','Ragi','Mostly rice'];
 const BLOOD=['','A+','A-','B+','B-','AB+','AB-','O+','O-'];
 const OB_TITLES=['Diet type','Body','Health','Goal','Likes','Allergy','Routine'];
 function startOnb(edit){
  document.body.classList.remove('landing');document.querySelector('.top').classList.remove('hide');heroStop();
- ob=edit&&P?JSON.parse(JSON.stringify(P)):{name:'',diet:S.get('diet','')||'',sex:'',age:'',h:'',w:'',act:'1.375',cur:'',cond:[],condOther:[],blood:'',goal:'',tw:'',tm:'',place:'home',lvl:'b',cuisine:'Mixed',budget:'',cook:'30 min',allergies:[],algOther:'',likes:[],dislikes:[],likeOther:'',dislikeOther:'',grain:'',wake:'07:00',sleep:'23:00',skipped:[]};
+ ob=edit&&P?JSON.parse(JSON.stringify(P)):{name:'',diet:S.get('diet','')||'',sex:'',age:'',h:'',w:'',act:'1.375',cur:'',cond:[],condOther:[],blood:'',goal:'',tw:'',tm:'',place:'home',lvl:'b',cuisine:'Mixed',budget:'',cook:'30 min',allergies:[],algOther:'',likes:[],dislikes:[],likeOther:'',dislikeOther:'',grain:'',wake:'07:00',sleep:'23:00',skipped:[],train:'none',waist:'',meds:'',focus:'health',wtHist:'stable',tea:'yes',eatOut:'rare',meals:'5',shift:'day'};
  ['condOther','likes','dislikes','skipped'].forEach(k=>{if(!Array.isArray(ob[k]))ob[k]=[]});
- ['name','blood','likeOther','dislikeOther','grain'].forEach(k=>{if(ob[k]==null)ob[k]=''});if(!ob.wake)ob.wake='07:00';if(!ob.sleep)ob.sleep='23:00';
+ ['name','blood','likeOther','dislikeOther','grain','waist','meds'].forEach(k=>{if(ob[k]==null)ob[k]=''});const DEF={train:'none',focus:'health',wtHist:'stable',tea:'yes',eatOut:'rare',meals:'5',shift:'day'};for(const k in DEF)if(!ob[k])ob[k]=DEF[k];ob.meals=String(ob.meals);if(!ob.wake)ob.wake='07:00';if(!ob.sleep)ob.sleep='23:00';
  if(edit&&P){ob.allergies=(P.allergies||[]).filter(a=>ALG.includes(a));ob.algOther=P.algOther||''}
  const old=S.get('profile',null);if(!edit&&old){Object.assign(ob,{sex:old.sex,age:old.age,h:old.h,w:old.w,act:String(old.act),tw:old.tw,tm:old.tm,place:old.place,lvl:old.lvl,cur:old.cur||'',diet:old.diet||ob.diet})}
  if(!edit&&!ob.name){ob.name=S.get('preName','')||''}
@@ -1070,19 +1548,19 @@ function customChips(arr,key){return arr.length?`<div class="chips" style="margi
 function renderOnb(){
  $('obSteps').innerHTML=Array.from({length:OBN},(_,i)=>`<i class="${i<=obStep?'on':''}" title="${OB_TITLES[i]}"></i>`).join('');
  const B=$('obBody');let h='';
- if(obStep===0){h=`<h2>Hello! First, tell us what you eat.</h2><div class="small muted">Your food, protein and diet chart will be based on this.</div><div class="row" style="margin-top:12px" id="o_diet">${[['v','🥦 Vegetarian','Dal, paneer, curd, vegetables'],['e','🥚 Eggetarian','Veg + eggs'],['n','🍗 Non-veg','Veg + eggs + chicken, fish']].map(([k,t,d])=>`<button class="opt ${ob.diet===k?'on':''}" data-k="${k}"><b>${t}</b><span class="small muted">${d}</span></button>`).join('')}</div><div class="err" id="e_diet"></div>${field('name','Your name (shown on the chart, optional)','text',ob.name,'maxlength="40" autocomplete="name"')}`}
- if(obStep===1){h=`<h2>About you</h2><div class="small muted">This is required — calories can’t be calculated without it.</div><div class="grid" style="margin-top:8px">${sel('sex','Gender',[['','Select'],['f','Female'],['m','Male']],ob.sex)}${field('age','Age (years)','number',ob.age,'inputmode="numeric" min="10" max="100"')}${field('h','Height (cm)','number',ob.h,'inputmode="decimal" min="100" max="230"')}${field('w','Weight (kg)','number',ob.w,'inputmode="decimal" min="25" max="300" step="0.1"')}${sel('act','How active are you?',[['1.2','Mostly sitting (desk job)'],['1.375','Lightly active (exercise 1–3 days)'],['1.55','Active (3–5 days)'],['1.725','Very active (6–7 days)']],ob.act)}${field('cur','Steps per day right now? (estimate)','number',ob.cur,'inputmode="numeric" min="0" max="50000" placeholder="e.g. 3000"')}</div>`}
- if(obStep===2){const list=condList(ob.sex);h=`<h2>Health</h2><div class="small muted">Any illness or health problem? This is saved only in your browser. ${ob.sex==='f'?'':''}</div><label style="margin-top:12px">Select all that apply</label>${chipGroup('o_cond',list,ob.cond)}<label style="margin-top:12px">Not in the list? Type it</label>${addBox('o_condAdd','e.g. migraine, asthma')}${customChips(ob.condOther,'condOther')}<div class="grid" style="margin-top:10px">${sel('blood','Blood group (optional)',BLOOD.map(b=>[b,b||'Don’t know / skip']),ob.blood)}</div>`}
- if(obStep===3){const minor=+ob.age<18;h=`<h2>Your goal</h2>${minor?'<div class="alert w">Weight-loss targets are not given to anyone under 18. The app will help with healthy eating and activity. Please talk to your family and a doctor.</div>':''}<div class="row" id="o_goal" style="margin-top:8px">${[['lose','⬇️ Lose weight'],['keep','➖ Maintain weight'],['gain','⬆️ Gain weight']].map(([k,t])=>`<button class="opt ${ob.goal===k?'on':''}" data-k="${k}" ${minor&&k!=='keep'?'disabled style="opacity:.4"':''}><b>${t}</b></button>`).join('')}</div><div class="err" id="e_goal"></div><div class="grid" id="o_twrap" style="margin-top:10px">${field('tw','Target weight (kg)','number',ob.tw,'inputmode="decimal" min="30" max="250" step="0.5"')}${field('tm','In how many months?','number',ob.tm,'inputmode="numeric" min="1" max="36"')}</div><div class="grid" style="margin-top:6px">${sel('place','Where will you exercise?',[['home','At home'],['gym','At the gym'],['both','Both']],ob.place)}${sel('lvl','Level',[['b','Beginner'],['i','Intermediate'],['a','Advanced']],ob.lvl)}</div>`}
+ if(obStep===0){h=`<h2>Hello! First, tell us what you eat.</h2><div class="small muted">Your food, protein and diet chart will be based on this.</div><div class="row" style="margin-top:12px" id="o_diet">${[['vg','🌱 Vegan','No dairy, eggs or meat'],['v','🥦 Vegetarian','Dal, paneer, curd, vegetables'],['e','🥚 Eggetarian','Veg + eggs'],['n','🍗 Non-veg','Veg + eggs + chicken, fish']].map(([k,t,d])=>`<button class="opt ${ob.diet===k?'on':''}" data-k="${k}"><b>${t}</b><span class="small muted">${d}</span></button>`).join('')}</div><div class="err" id="e_diet"></div>${field('name','Your name (shown on the chart, optional)','text',ob.name,'maxlength="40" autocomplete="name"')}`}
+ if(obStep===1){h=`<h2>About you</h2><div class="small muted">This is required — calories can’t be calculated without it.</div><div class="grid" style="margin-top:8px">${sel('sex','Gender',[['','Select'],['f','Female'],['m','Male']],ob.sex)}${field('age','Age (years)','number',ob.age,'inputmode="numeric" min="10" max="100"')}${field('h','Height (cm)','number',ob.h,'inputmode="decimal" min="100" max="230"')}${field('w','Weight (kg)','number',ob.w,'inputmode="decimal" min="25" max="300" step="0.1"')}${sel('act','How active are you?',[['1.2','Mostly sitting (desk job)'],['1.375','Lightly active (exercise 1–3 days)'],['1.55','Active (3–5 days)'],['1.725','Very active (6–7 days)']],ob.act)}${field('cur','Steps per day right now? (estimate)','number',ob.cur,'inputmode="numeric" min="0" max="50000" placeholder="e.g. 3000"')}${sel('train','Exercise you do now',[['none','None yet'],['walk','Walking / yoga'],['strength','Strength training (weights)'],['mixed','Strength + cardio / sport']],ob.train)}${field('waist','Waist at navel, cm (optional)','number',ob.waist,'inputmode="decimal" min="50" max="200" placeholder="e.g. 92"')}</div><div class="tiny muted" style="margin-top:6px">Waist size shows belly fat better than BMI for Indians.</div>`}
+ if(obStep===2){const list=condList(ob.sex);h=`<h2>Health</h2><div class="small muted">Any illness or health problem? This is saved only in your browser. ${ob.sex==='f'?'':''}</div><label style="margin-top:12px">Select all that apply</label>${chipGroup('o_cond',list,ob.cond)}<label style="margin-top:12px">Not in the list? Type it</label>${addBox('o_condAdd','e.g. migraine, asthma')}${customChips(ob.condOther,'condOther')}<div class="grid" style="margin-top:10px">${sel('blood','Blood group (optional)',BLOOD.map(b=>[b,b||'Don’t know / skip']),ob.blood)}${field('meds','Medicines you take regularly (optional)','text',ob.meds||'','maxlength="80" placeholder="e.g. thyroid tablet, metformin"')}</div><div class="tiny muted" style="margin-top:6px">Why we ask: some conditions and medicines change what is safe to eat. We never diagnose anything, and we suggest a doctor or dietitian when your plan needs one.</div>`}
+ if(obStep===3){const minor=+ob.age<18;h=`<h2>Your goal</h2>${minor?'<div class="alert w">Weight-loss targets are not given to anyone under 18. The app will help with healthy eating and activity. Please talk to your family and a doctor.</div>':''}<div class="row" id="o_goal" style="margin-top:8px">${[['lose','⬇️ Lose weight'],['keep','➖ Maintain weight'],['gain','⬆️ Gain weight']].map(([k,t])=>`<button class="opt ${ob.goal===k?'on':''}" data-k="${k}" ${minor&&k!=='keep'?'disabled style="opacity:.4"':''}><b>${t}</b></button>`).join('')}</div><div class="err" id="e_goal"></div><div class="grid" id="o_twrap" style="margin-top:10px">${field('tw','Target weight (kg)','number',ob.tw,'inputmode="decimal" min="30" max="250" step="0.5"')}${field('tm','In how many months?','number',ob.tm,'inputmode="numeric" min="1" max="36"')}</div><div class="grid" style="margin-top:6px" id="o_fwrap">${sel('focus','Main focus',[['health','General health'],['fitness','Fitness & stamina'],['recomp','Lose fat and build muscle together']],ob.focus)}</div><div class="grid" style="margin-top:6px">${sel('wtHist','Weight in the last 6 months',[['stable','About the same'],['gained','Gained'],['lost_int','Lost — I was trying'],['lost_unint','Lost without trying']],ob.wtHist)}${sel('place','Where will you exercise?',[['home','At home'],['gym','At the gym'],['both','Both']],ob.place)}${sel('lvl','Level',[['b','Beginner'],['i','Intermediate'],['a','Advanced']],ob.lvl)}</div>`}
  if(obStep===4){h=`<h2>Food likes / dislikes</h2><label style="margin-top:8px">😋 What do you like?</label>${chipGroup('o_likes',LIKES(ob.diet),ob.likes)}${addBox('o_likeAdd','Anything else you like? e.g. khichdi')}${customChips(ob.likes.filter(x=>!LIKES(ob.diet).includes(x)),'likesCustom')}<label style="margin-top:14px">🙅 What do you dislike?</label>${chipGroup('o_dislikes',DISLIKES,ob.dislikes)}${addBox('o_dislikeAdd','Anything else? e.g. arbi')}${customChips(ob.dislikes.filter(x=>!DISLIKES.includes(x)),'dislikesCustom')}`}
- if(obStep===5){h=`<h2>Allergies and budget</h2><label>Allergies / foods you can’t eat</label>${chipGroup('o_alg',ALG,ob.allergies)}${field('algOther','Any other allergy? (optional)','text',ob.algOther||'','placeholder="e.g. brinjal" maxlength="40"')}<div class="grid" style="margin-top:6px">${sel('cuisine','Which cuisine do you eat most?',[['North Indian','North Indian'],['South Indian','South Indian'],['East Indian','East Indian (Bengali, Odia)'],['West Indian','West Indian (Gujarati, Marathi)'],['Mixed','Mixed']],ob.cuisine)}${field('budget','Daily food budget (₹, optional)','number',ob.budget,'inputmode="numeric" min="0" placeholder="e.g. 200"')}${sel('cook','Cooking time',[['15 min','15 min'],['30 min','30 min'],['60 min','1 hour'],['someone cooks','Someone else cooks at home']],ob.cook)}</div>`}
- if(obStep===6){h=`<h2>Daily routine</h2><div class="small muted">This sets the right meal times in your diet chart.</div><div class="grid" style="margin-top:8px">${field('wake','What time do you wake up?','time',ob.wake)}${field('sleep','What time do you sleep?','time',ob.sleep)}${sel('grain','Which flour / grain at home?',[['','Don’t know / skip'],...GRAINS.map(g=>[g,g])],ob.grain)}</div>`}
+ if(obStep===5){h=`<h2>Allergies and budget</h2><label>Allergies / foods you can’t eat</label>${chipGroup('o_alg',ALG,ob.allergies)}${field('algOther','Any other allergy? (optional)','text',ob.algOther||'','placeholder="e.g. brinjal" maxlength="40"')}<div class="grid" style="margin-top:6px">${sel('cuisine','Which cuisine do you eat most?',[['North Indian','North Indian'],['South Indian','South Indian'],['East Indian','East Indian (Bengali, Odia)'],['West Indian','West Indian (Gujarati, Marathi)'],['Mixed','Mixed']],ob.cuisine)}${field('budget','Daily food budget (₹, optional)','number',ob.budget,'inputmode="numeric" min="0" placeholder="e.g. 200"')}${sel('cook','Cooking time',[['15 min','15 min'],['30 min','30 min'],['60 min','1 hour'],['someone cooks','Someone else cooks at home']],ob.cook)}${sel('tea','Do you drink tea / coffee?',[['yes','Yes'],['no','No']],ob.tea)}${sel('eatOut','Eating out / ordering in',[['rare','Rarely'],['weekly','1–3 times a week'],['daily','Most days']],ob.eatOut)}</div>`}
+ if(obStep===6){h=`<h2>Daily routine</h2><div class="small muted">This sets the right meal times in your diet chart.</div><div class="grid" style="margin-top:8px">${field('wake','What time do you wake up?','time',ob.wake)}${field('sleep','What time do you sleep?','time',ob.sleep)}${sel('grain','Which flour / grain at home?',[['','Don’t know / skip'],...GRAINS.map(g=>[g,g])],ob.grain)}${sel('meals','How many times do you like to eat?',[['3','3 meals'],['4','3 meals + 1 snack'],['5','3 meals + 2 snacks'],['6','3 meals + 3 snacks']],ob.meals)}${sel('shift','Work timing',[['day','Day'],['night','Night shift'],['rotating','Changing shifts']],ob.shift)}</div><div class="tiny muted" style="margin-top:6px">Meal times follow your wake-up and sleep time, so night-shift workers get times that fit.</div>`}
  B.innerHTML=h;
  $('obBack').style.visibility=obStep===0&&P?'hidden':'visible';$('obNext').textContent=obStep===OBN-1?'Show my plan + diet chart ✨':'Next';
  const sk=$('obSkip');sk.classList.toggle('hide',obStep===1);sk.textContent=obStep===OBN-1?'Skip, show my chart':'Skip';
  const pick=(id,multi,key)=>{const w=$(id);if(!w)return;w.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(multi){const a=ob[key];const i=a.indexOf(k);i<0?a.push(k):a.splice(i,1);b.classList.toggle('on')}else{ob[key]=k;w.querySelectorAll('[data-k]').forEach(x=>x.classList.toggle('on',x===b));if(key==='goal')twVis()}})};
  pick('o_diet',0,'diet');pick('o_cond',1,'cond');pick('o_goal',0,'goal');pick('o_alg',1,'allergies');pick('o_likes',1,'likes');pick('o_dislikes',1,'dislikes');
- const twVis=()=>{const w=$('o_twrap');if(w)w.style.display=ob.goal==='keep'?'none':''};twVis();
+ const twVis=()=>{const w=$('o_twrap');if(w)w.style.display=ob.goal==='keep'?'none':'';const f=$('o_fwrap');if(f)f.style.display=ob.goal==='keep'?'':'none'};twVis();
  B.querySelectorAll('[data-add]').forEach(btn=>{const inp=$(btn.dataset.add);const add=()=>{const v=inp.value.trim().replace(/\s+/g,' ');if(!v)return;const key={o_condAdd:'condOther',o_likeAdd:'likes',o_dislikeAdd:'dislikes'}[btn.dataset.add];if(!ob[key].some(x=>x.toLowerCase()===v.toLowerCase()))ob[key].push(v);readOnb();renderOnb()};btn.onclick=add;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();add()}}});
  B.querySelectorAll('[data-rmc]').forEach(b=>b.onclick=()=>{const key=b.dataset.rmc,i=+b.dataset.i;readOnb();if(key==='condOther')ob.condOther.splice(i,1);else{const base=key==='likesCustom'?'likes':'dislikes',std=key==='likesCustom'?LIKES(ob.diet):DISLIKES;const custom=ob[base].filter(x=>!std.includes(x));ob[base]=ob[base].filter(x=>x!==custom[i])}renderOnb()});
 }
@@ -1092,7 +1570,7 @@ function readOnb(){document.querySelectorAll('#obBody [id^=o_]').forEach(el=>{if
 function vnum(k,min,max,msg){const v=+ob[k];const e=$('e_'+k);if(ob[k]===''||isNaN(v)||v<min||v>max){if(e)e.textContent=msg;return false}if(e)e.textContent='';return true}
 function validOnb(){
  if(obStep===0&&!ob.diet){$('e_diet').textContent='Choose one, or tap Skip (we’ll assume Veg)';return false}
- if(obStep===1){let ok=true;if(!ob.sex){ok=false;$('e_sex').textContent='Choose a gender'}else $('e_sex').textContent='';ok=vnum('age',10,100,'Age must be between 10 and 100')&&ok;ok=vnum('h',100,230,'Height in cm (100–230)')&&ok;ok=vnum('w',25,300,'Weight in kg (25–300)')&&ok;if(ob.cur!==''&&!vnum('cur',0,50000,'Between 0 and 50,000'))ok=false;return ok}
+ if(obStep===1){let ok=true;if(!ob.sex){ok=false;$('e_sex').textContent='Choose a gender'}else $('e_sex').textContent='';ok=vnum('age',10,100,'Age must be between 10 and 100')&&ok;ok=vnum('h',100,230,'Height in cm (100–230)')&&ok;ok=vnum('w',25,300,'Weight in kg (25–300)')&&ok;if(ob.waist!==''&&!vnum('waist',50,200,'Waist in cm (50–200)'))ok=false;if(ob.cur!==''&&!vnum('cur',0,50000,'Between 0 and 50,000'))ok=false;return ok}
  if(obStep===3){if(+ob.age<18)ob.goal='keep';if(!ob.goal){$('e_goal').textContent='Choose a goal, or tap Skip (plan to keep your weight the same)';return false}if(ob.goal!=='keep'){let ok=vnum('tw',30,250,'Target 30–250 kg');ok=vnum('tm',1,36,'1 to 36 months')&&ok;if(ok&&ob.goal==='lose'&&+ob.tw>=+ob.w){$('e_tw').textContent='To lose weight, the target must be lower than your current weight';ok=false}if(ok&&ob.goal==='gain'&&+ob.tw<=+ob.w){$('e_tw').textContent='To gain weight, the target must be higher';ok=false}return ok}}
  if(obStep===5&&ob.budget!==''&&!vnum('budget',0,100000,'Enter a valid amount'))return false;
  if(obStep===6&&ob.wake&&ob.sleep&&ob.wake===ob.sleep){$('e_sleep').textContent='Wake-up and sleep times must be different';return false}
@@ -1112,34 +1590,16 @@ $('obBack').onclick=()=>{readOnb();if(obStep>0){obStep--;renderOnb()}else if(!P)
 $('obNext').onclick=()=>{readOnb();if(!validOnb())return;ob.skipped=ob.skipped.filter(s=>s!==OB_TITLES[obStep]);if(obStep<OBN-1){obStep++;renderOnb();return}finishOnb()};
 $('obSkip').onclick=()=>{readOnb();if(obStep===1)return;skipStep();if(obStep<OBN-1){obStep++;renderOnb();return}finishOnb()};
 function finishOnb(){
- const p={name:(ob.name||'').trim(),diet:ob.diet||'v',sex:ob.sex,age:+ob.age,h:+ob.h,w:+ob.w,act:+ob.act,cur:+ob.cur||0,cond:ob.cond.slice(),condOther:ob.condOther.slice(),blood:ob.blood||'',goal:ob.goal||'keep',tw:(ob.goal||'keep')==='keep'?+ob.w:+ob.tw,tm:(ob.goal||'keep')==='keep'?0:+ob.tm,place:ob.place,lvl:ob.lvl,cuisine:ob.cuisine||'Mixed',budget:+ob.budget||0,cook:ob.cook||'30 min',allergies:ob.allergies.concat(ob.algOther?[ob.algOther.trim()]:[]).filter(Boolean),algOther:ob.algOther||'',likes:ob.likes.slice(),dislikes:ob.dislikes.slice(),grain:ob.grain||'',wake:ob.wake||'07:00',sleep:ob.sleep||'23:00',skipped:ob.skipped.slice(),start:P&&P.start?P.start:{date:today(),w:+ob.w}};
+ const P0=P;
+ const p={name:(ob.name||'').trim(),diet:ob.diet||'v',sex:ob.sex,age:+ob.age,h:+ob.h,w:+ob.w,act:+ob.act,cur:+ob.cur||0,cond:ob.cond.slice(),condOther:ob.condOther.slice(),blood:ob.blood||'',goal:ob.goal||'keep',tw:(ob.goal||'keep')==='keep'?+ob.w:+ob.tw,tm:(ob.goal||'keep')==='keep'?0:+ob.tm,place:ob.place,lvl:ob.lvl,cuisine:ob.cuisine||'Mixed',budget:+ob.budget||0,cook:ob.cook||'30 min',allergies:ob.allergies.concat(ob.algOther?[ob.algOther.trim()]:[]).filter(Boolean),algOther:ob.algOther||'',likes:ob.likes.slice(),dislikes:ob.dislikes.slice(),grain:ob.grain||'',wake:ob.wake||'07:00',sleep:ob.sleep||'23:00',skipped:ob.skipped.slice(),start:P&&P.start?P.start:{date:today(),w:+ob.w},train:ob.train||'none',waist:+ob.waist||0,meds:String(ob.meds||'').trim().slice(0,80),focus:ob.focus||'health',wtHist:ob.wtHist||'stable',tea:ob.tea||'yes',eatOut:ob.eatOut||'rare',meals:+ob.meals||5,shift:ob.shift||'day',adj:P&&P.adj&&P.w===+ob.w&&P.goal===(ob.goal||'keep')?P.adj:0};
  p.t=computeTargets(p);P=p;diet=p.diet;S.set('profile2',P);S.set('diet',diet);
  if(!weights[today()]){weights[today()]=p.w;S.set('weights',weights)}
- S.set('chart',makeChart());go('chart');showPlanSheet();
+ S.set('chart',makeChart(P0?'Details updated':'First plan'));chartDay=0;go('chart');showPlanSheet();
 }
 
 // ================= targets & safety =================
 function bmiCat(b){if(b<18.5)return['Underweight','w'];if(b<23)return['Normal','g'];if(b<25)return['Overweight (Asian scale)','w'];if(b<30)return['Obese class I (Asian scale)','r'];return['Obese class II (Asian scale)','r']}
-function computeTargets(p){
- const m=p.h/100,bmi=p.w/(m*m),bmr=10*p.w+6.25*p.h-5*p.age+(p.sex==='m'?5:-161),tdee=bmr*p.act;
- const hMin=18.5*m*m,hMax=22.9*m*m,warn=[],notes=[];let goal=p.goal;
- const minor=p.age<18,preg=p.cond.includes('preg')||p.cond.includes('bf'),ed=p.cond.includes('ed'),med=p.cond.some(c=>['diab','bp','chol','liver','kid','heart','thy','pcos','uric','meno'].includes(c))||(p.condOther||[]).length>0;
- if(minor&&goal!=='keep'){goal='keep';warn.push('No weight loss / gain target is given under 18.')}
- if(ed&&goal!=='keep'){goal='keep';warn.push('For your safety no weight target has been set. It’s best to plan with a doctor or counsellor.')}
- if(minor)notes.push('Under 18 this calorie formula is only an estimate. Growing bodies need enough food — talk to a doctor.');
- if(preg&&goal==='lose'){goal='keep';warn.push('Calories are not reduced during pregnancy / breastfeeding. Follow your doctor’s plan.')}
- if(med)notes.push('You mentioned a medical condition. These targets are general information — please check them with your doctor or registered dietitian.');
- const floor=p.sex==='m'?1500:1200;let daily=0,kcal=tdee;
- if(goal==='lose'){const weeks=Math.max(1,p.tm*4.345);daily=(p.w-p.tw)*7700/(weeks*7);if(daily>1000){warn.push(`${p.tm} months to lose ${r1(p.w-p.tw)} kg is unsafely fast. The plan has been set to the safe limit of 1 kg/week.`);daily=1000}kcal=tdee-daily;if(kcal<floor){warn.push(`Calories ${floor} is the minimum, so the target is ${floor} kcal.`);kcal=floor;daily=tdee-floor}}
- else if(goal==='gain'){const weeks=Math.max(1,p.tm*4.345);const want=(p.tw-p.w)*7700/(weeks*7);daily=-Math.min(500,want);if(want>500)warn.push('Gaining slowly (0.25–0.5 kg/week) is better, otherwise you gain more fat.');kcal=tdee-daily}
- if(goal!=='keep'&&p.tw<hMin-0.5)warn.push(`Target ${p.tw} kg is too low for your height. Healthy range ${r0(hMin)}–${r0(hMax)} kg.`);
- kcal=Math.round(kcal/10)*10;
- const refW=Math.min(p.w,Math.max(p.tw,hMax));const pr=Math.round(refW*(p.lvl==='b'?1.2:1.4));
- const fat=Math.round(kcal*.25/9),carb=Math.max(0,Math.round((kcal-pr*4-fat*9)/4));
- const water=r1(p.w*.035+(p.act>=1.55?.5:0));const steps=goal==='lose'?10000:goal==='gain'?7000:8000;
- const weeksNeeded=daily?Math.abs((p.w-p.tw)*7700/(daily*7)):0;
- return{bmi,bmr,tdee,kcal,p:pr,c:carb,f:fat,water,steps,daily,goal,warn,notes,noCal:ed,minor,weeksNeeded,hMin,hMax};
-}
+function computeTargets(p){return FMN.computeTargets(p)}
 function showPlanSheet(){
  const t=P.t,[cat,cl]=bmiCat(t.bmi);
  openSheet(`<h2>Your plan is ready 🎉</h2>
@@ -1151,8 +1611,8 @@ function showPlanSheet(){
  </div>
  ${t.noCal?'<div class="alert i">For your safety, calorie numbers are hidden. The app will focus on food, protein and habits. Support from a doctor or counsellor is recommended.</div>':''}
  ${t.goal!=='keep'&&!t.noCal?`<div class="alert g">Lagbhag <b>${r1(Math.abs(t.daily)*7/7700)} kg/week</b> → ${r1(Math.abs(P.w-P.tw))} kg in ~<b>${r1(t.weeksNeeded/4.345)} months</b>.</div>`:''}
- ${t.warn.map(x=>`<div class="alert w">⚠️ ${esc(x)}</div>`).join('')}${t.notes.map(x=>`<div class="alert i">${esc(x)}</div>`).join('')}
- <div class="tiny muted" style="margin-top:10px">Method: Mifflin-St Jeor BMR × activity; BMI Asian cut-offs; deficit max 1,000 kcal/day.</div>
+ ${(t.flags||[]).filter(f=>f.lvl!=='info').map(f=>`<div class="alert ${f.lvl==='refer'?'r':'w'}">${esc(f.text)}</div>`).join('')}${t.warn.map(x=>`<div class="alert w">⚠️ ${esc(x)}</div>`).join('')}${t.notes.map(x=>`<div class="alert i">${esc(x)}</div>`).join('')}
+ <div class="tiny muted" style="margin-top:10px">Method: Mifflin-St Jeor BMR × activity; Asian Indian BMI cut-offs; deficit at most 20% of maintenance and 1% of body weight a week; protein by goal (ICMR, PROT-AGE, Morton 2018). Details are in your diet chart.</div>
  <button class="btn block" style="margin-top:12px" onclick="closeSheet()">See my diet chart →</button>`);
 }
 function openSheet(h){$('sheet').innerHTML=h;$('modal').classList.add('on')}
@@ -1389,29 +1849,6 @@ Return ONLY JSON: {"meals":[{"meal":"Breakfast|Lunch|Snacks|Dinner","items":[{"n
   $('planOut').querySelectorAll('[data-pm]').forEach(b=>b.onclick=()=>{const m=meals[+b.dataset.pm];const mealName=['Breakfast','Lunch','Snacks','Dinner'].includes(m.meal)?m.meal:defaultMeal();m.items.forEach(it=>dayLog().food.push({n:String(it.name).slice(0,60),lbl:String(it.amount||''),k:r0(it.kcal),p:r1(it.protein),c:r1(it.carbs),f:r1(it.fat),src:'est',m:mealName}));saveLog();toast(m.meal+' logged');b.textContent='✓ Logged';b.disabled=true});
  }catch(e){$('planOut').innerHTML='';$('planErr').textContent=aiErr(e)}$('planGo').disabled=false};
 
-// ================= DIET CHART (PDF-style) =================
-// item: [name, amount, kcal, protein, diet, tags]  — kcal/protein are typical estimates
-const CI={
- water:[['Warm water + lemon','1 glass / 250 ml',5,0,'v',[]],['Jeera water','1 glass / 250 ml',5,0,'v',[]]],
- nuts:[['Soaked almonds (5) + walnut (1)','6 nos.',60,2,'v',['nuts']],['Soaked almonds (6)','6 nos.',42,1.5,'v',['nuts']]],
- bf:[['Veg poha','1 katori / 150 g',240,4.5,'v',[]],['Moong dal cheela + green chutney','2 nos.',280,14,'v',[]],['Veg upma','1 katori / 150 g',225,5,'v',['wheat']],['Besan chilla + curd','2 nos. + 1 katori',340,18,'v',['dairy']],['Idli + sambar','3 nos. + 1 katori',270,9,'v',[]],['Veg dalia','1 katori / 150 g',180,6,'v',['wheat','dalia']],['Paneer bhurji + 1 roti','1 katori + 1 no.',330,17,'v',['dairy','wheat']],['Oats chilla','2 nos.',220,9,'v',['oats']],['Boiled eggs (2) + brown bread','2 + 2 slice',294,17,'e',['egg','wheat']],['Veg omelette (2 eggs) + 1 roti','1 plate',310,16,'e',['egg','wheat']]],
- chai:['Tea (low sugar)','1 cup / 150 ml',60,2,'v',['dairy','chai']],
- gtea:['Green tea','1 cup / 150 ml',2,0,'v',[]],
- mid:[['Seasonal fruit (apple / papaya / guava)','1 no. / 150 g',80,1,'v',['fruits']],['Coconut water','1 glass / 200 ml',40,0,'v',[]],['Buttermilk (salt + jeera)','1 glass / 200 ml',40,2,'v',['dairy']],['Lemon water (no sugar)','1 glass / 200 ml',5,0,'v',[]]],
- dal:[['Moong dal','1 katori / 150 g',160,10.5,'v',['dal']],['Arhar dal','1 katori / 150 g',175,10.5,'v',['dal']],['Rajma','1 katori / 150 g',210,13,'v',['rajma']],['Masoor dal','1 katori / 150 g',165,10,'v',['dal']],['Chole','1 katori / 150 g',245,13,'v',['chole']]],
- sabji:[['Lauki sabji','1 katori / 150 g',85,2,'v',['lauki']],['Bhindi sabji','1 katori / 150 g',165,3,'v',['bhindi']],['Mix veg','1 katori / 150 g',135,4,'v',[]],['Tinda sabji','1 katori / 150 g',90,2,'v',[]],['Gobhi sabji','1 katori / 150 g',140,4,'v',[]],['Tori sabji','1 katori / 150 g',85,2,'v',['lauki']],['Cabbage sabji','1 katori / 150 g',100,3,'v',[]],['Beans sabji','1 katori / 150 g',110,3,'v',[]],['Spinach / methi sabji','1 katori / 150 g',110,4,'v',['glv']],['Baingan bharta','1 katori / 150 g',150,3,'v',['baingan']],['Karela sabji','1 katori / 150 g',120,3,'v',['karela']],['Mushroom matar','1 katori / 150 g',140,6,'v',['mushroom']]],
- salad:['Salad (cucumber, tomato, onion)','1 bowl / 150 g',30,1,'v',[]],
- curd:['Curd / raita','1 katori / 100 g',60,3.5,'v',['dairy','dahi']],
- eve:[['Roasted chana','1 handful / 30 g',110,6,'v',['chana']],['Roasted makhana','1 bowl / 20 g',75,2,'v',[]],['Moong sprouts chaat','1 katori / 150 g',150,9,'v',['sprouts']],['Murmura bhel','1 bowl / 30 g',120,3,'v',[]],['Roasted peanuts','1 handful / 25 g',140,6,'v',['peanut']]],
- dinMain:[['Paneer tikka','120 g',320,22,'v',['dairy','paneer']],['Veg khichdi + curd','1 bowl + 1 katori',330,12,'v',['dairy']],['Soya chunks sabji','1 katori / 150 g',210,18,'v',['soya']],['Lauki stuffed roti + chutney','2 nos.',300,8,'v',['wheat','lauki']],['Palak paneer','1 katori / 150 g',225,10,'v',['dairy','paneer','glv']],['Egg bhurji (2 eggs)','1 katori',200,13,'e',['egg']],['Grilled chicken / chicken tikka','150 g',250,38,'n',['chicken']],['Fish curry','1 katori / 150 g',195,22,'n',['fish']]],
- lunchMain:[['Egg curry (2 eggs)','1 katori / 150 g',220,13,'e',['egg']],['Chicken curry','1 katori / 150 g',225,21,'n',['chicken']]],
- post:[['Turmeric milk (low sugar)','1 cup / 150 ml',100,5,'v',['dairy','milk']]],
- extra:[['Banana','1 no.',105,1.3,'v',['fruits']],['Curd','1 katori / 100 g',60,3.5,'v',['dairy']],['Roasted chana','1 handful / 30 g',110,6,'v',['chana']]]
-};
-const DISLIKE_TAG={'Leafy greens (palak, methi, sarson, bathua)':'glv','Lauki / tori':'lauki','Karela':'karela','Baingan':'baingan','Bhindi':'bhindi','Plain milk':'milk','Mushroom':'mushroom','Oats':'oats','Dalia':'dalia','Soya chunks':'soya'};
-const ALG_TAG={'Milk':'dairy','Peanuts':'peanut','Gluten / wheat':'wheat','Egg':'egg','Soya':'soya','Dry fruits / nuts':'nuts','Seafood':'fish'};
-const VEG_ALL=['Bottle gourd (lauki)','Ridge gourd (tori)','Tinda','Parwal','Pumpkin','Okra (bhindi)','Brinjal (baingan)','Cauliflower','Cabbage','Beans','Capsicum','Broccoli','Tomato','Onion','Cucumber','Carrot','Bitter gourd (karela)','Spinach / methi / mustard greens','Mushroom','Peas'];
-const FRUIT_ALL=['Apple','Papaya','Guava','Pear','Kiwi','Pomegranate','Orange / sweet lime','Watermelon','Muskmelon','Jamun','Banana'];
 // ================= bilingual food names: English [Hindi] =================
 const NM={
 'Roti / Chapati (medium)':'Chapati [roti] (medium)','Phulka (small roti)':'Thin chapati [phulka]','Roti with ghee':'Chapati with clarified butter [ghee wali roti]','Plain Paratha':'Plain flatbread [paratha]','Aloo Paratha':'Potato-stuffed flatbread [aloo paratha]','Puri':'Fried bread [puri]','Bajra Roti':'Pearl millet flatbread [bajra roti]',
@@ -1431,107 +1868,145 @@ const NM={
 };
 const bi=n=>NM[n]||n;
 FOODS.forEach(f=>{f.n=bi(f.n)});PROT.forEach(x=>{x.n=bi(x.n)});
-for(const k in CI){const v=CI[k];(Array.isArray(v[0])?v:[v]).forEach(x=>{x[0]=bi(x[0])})}
-function itemOK(it){const [name,, ,,d,tags]=it;if(!dietOK(d))return false;const low=name.toLowerCase();
- for(const a of P.allergies){const tg=ALG_TAG[a];if(tg?tags.includes(tg):low.includes(a.toLowerCase()))return false}
- for(const x of P.dislikes||[]){const tg=DISLIKE_TAG[x];if(tg?tags.includes(tg):low.includes(x.toLowerCase()))return false}
- return true}
-function likeScore(it){const low=(it[0]+' '+it[5].join(' ')).toLowerCase();return (P.likes||[]).some(l=>l.toLowerCase().split('/').map(s=>s.trim()).filter(Boolean).some(k=>low.includes(k.replace(/s$/,''))))?1:0}
-function pool(list){return list.filter(itemOK).sort((a,b)=>likeScore(b)-likeScore(a))}
-const pickN=(list,i)=>list.length?list[i%list.length]:null;
-function rotiItem(){const g=P.grain||'',glu=P.allergies.includes('Gluten / wheat');
- if(glu||g==='Bajra / jowar')return['Sorghum / millet flatbread [jowar / bajra roti]','1 no.',115,3.5,'v',[]];if(g==='Ragi')return['Finger millet flatbread [ragi roti]','1 no.',110,3,'v',[]];
- if(g==='Multigrain atta')return['Multigrain flatbread [multigrain roti]','1 no.',115,4,'v',['wheat']];if(g==='Atta + bran')return['Whole-bran chapati [chokar roti]','1 no.',110,4,'v',['wheat']];return['Chapati [roti]','1 no.',120,3.5,'v',['wheat']]}
-const toMin=s=>{const [h,m]=String(s||'07:00').split(':').map(Number);return (h||0)*60+(m||0)};
-const fromMin=m=>{m=((m%1440)+1440)%1440;let h=Math.floor(m/60),mm=m%60;const ap=h>=12?'pm':'am';h=h%12||12;return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')} ${ap}`};
-function slotTimes(){let w=toMin(P.wake),s=toMin(P.sleep);if(s<=w)s+=1440;const early=w+30,bf=Math.min(early+120,w+180),mid=bf+90,lunch=Math.max(mid+150,Math.min(14*60,s-600)),eve=lunch+180,dinner=Math.max(eve+150,Math.min(s-180,21*60)),post=dinner+90;return{early,bf,mid,lunch,eve,dinner,post:post<=s-45?post:null}}
-const row=(it,mult=1)=>({item:it[0],amount:mult===1?it[1]:`${mult} nos.`,kcal:r0(it[2]*mult),p:r1(it[3]*mult)});
-function makeChart(){
- const t=P.t,target=t.noCal?Math.round(t.tdee/10)*10:t.kcal,T=slotTimes(),R=rotiItem();
- const bfP=pool(CI.bf),midP=pool(CI.mid),dalP=pool(CI.dal),sabP=pool(CI.sabji),eveP=pool(CI.eve),dinP=pool(CI.dinMain),lmP=pool(CI.lunchMain),extraP=pool(CI.extra);
- const chaiOK=itemOK(CI.chai),curdOK=itemOK(CI.curd),nuts=pool(CI.nuts)[0],postOK=pool(CI.post)[0];
- const days=[];
- for(let d=0;d<4;d++){
-  let nl=2,nd=1;const mainNV=(P.diet!=='v'&&lmP.length&&d%2===1)?pickN(lmP,d):null;
-  const din=pickN(dinP,d),dinHasRoti=din&&/roti|khichdi/i.test(din[0]);
-  const build=()=>{const S=[];const add=(time,meal,items)=>items.filter(Boolean).forEach((r,i)=>S.push({time:i?'':fromMin(time),meal:i?'':meal,...r}));
-   add(T.early,'Early morning',[row(pickN(CI.water,d)),nuts&&row(nuts)]);
-   add(T.bf,'Breakfast',[pickN(bfP,d)&&row(pickN(bfP,d)),chaiOK&&row(CI.chai)]);
-   add(T.mid,'Mid morning',[pickN(midP,d)&&row(pickN(midP,d))].concat(extraN>0&&extraP[0]?[row(extraP[0])]:[]));
-   add(T.lunch,'Lunch',[row(R,nl),mainNV?row(mainNV):(pickN(dalP,d)&&row(pickN(dalP,d))),pickN(sabP,d)&&row(pickN(sabP,d)),row(CI.salad),curdOK&&row(CI.curd)]);
-   add(T.eve,'Evening',[pickN(eveP,d)&&row(pickN(eveP,d)),d%2&&chaiOK?row(CI.chai):row(CI.gtea)].concat(extraN>1&&extraP[1]?[row(extraP[1])]:[]));
-   add(T.dinner,'Dinner',[din&&row(din),(!dinHasRoti)&&nd>0?row(R,nd):null,!din&&pickN(dalP,d+2)?row(pickN(dalP,d+2)):null,row(CI.salad)]);
-   if(T.post)add(T.post,'Post dinner',[d%2&&postOK?row(postOK):row(CI.gtea)]);
-   return S};
-  let extraN=0,rows=build(),tot=()=>sum(rows,'kcal');
-  for(let k=0;k<6&&Math.abs(tot()-target)>110;k++){
-   if(tot()>target){if(nl>1&&nl>=nd)nl--;else if(nd>0&&!dinHasRoti)nd--;else if(nl>1)nl--;else break}
-   else{if(nl<3)nl++;else if(nd<2&&!dinHasRoti)nd++;else if(extraN<2)extraN++;else break}
-   rows=build()}
-  days.push({date:addDays(today(),d),rows,kcal:tot(),p:r1(sum(rows,'p'))});
- }
- const vegOK=VEG_ALL.filter(v=>!(P.dislikes||[]).some(x=>{const tg=DISLIKE_TAG[x];const low=v.toLowerCase();return tg==='glv'?/spinach|methi|mustard/.test(low):tg==='lauki'?/lauki|tori/.test(low):tg?low.includes(tg):low.includes(x.toLowerCase())}));
- const avoid=['Fried foods (pakode, samosa, puri)','Maida and bakery items','Meetha, mithai, cold drink, packet juice','Packaged namkeen and chips'].concat((P.dislikes||[]).map(x=>x+' (you dislike it)')).concat(P.allergies.map(a=>a+' (allergy)'));
- const conds=P.cond.map(condName).concat(P.condOther||[]);
- return{created:today(),src:'template',target,days,
-  waters:{early:'1 glass of warm water (with lemon or jeera), on an empty stomach',day:`Over the whole day ${t.water} litre (~${Math.ceil(t.water*4)} glasses). Drink most of it by 6 pm.`},
-  grain:P.allergies.includes('Gluten / wheat')?'No wheat — jowar, bajra, ragi or rice':(P.grain||'Wheat atta')+(P.grain==='Mostly rice'?'  — keep rice to 1 katori':''),
-  allowedVeg:vegOK,allowedFruits:FRUIT_ALL.filter(f=>!(P.dislikes||[]).some(x=>f.toLowerCase().includes(x.toLowerCase()))),avoid,
-  condNote:conds.length?`You mentioned: ${conds.join(', ')}. What to avoid for these conditions should be confirmed by your doctor or registered dietitian — this chart is a general healthy plan.`:'',
-  tips:['Oil: 2–3 tsp for the whole day, ghee: 1 tsp','Sugar / jaggery / honey: no more than 1–2 tsp a day','Dinner 2–3 hours before sleeping',`Reach ${fmt(t.steps)} steps gradually`,'Check your weight 1–2 times a week, morning, empty stomach']};
+/*CHARTUI-START*/
+// ================= DIET CHART v2 (engine-driven; numbers come only from FMN) =================
+let chartDay=0;
+const EN=FMN;
+const GOALNAME={lose:'Fat loss',keep:'Healthy maintenance',gain:'Muscle / weight gain'};
+const FOCUSNAME={health:'General health',fitness:'Fitness & stamina',recomp:'Body recomposition'};
+const bil=n=>{const m=String(n).match(/^(.*?)\s*\[(.*)\]$/);return m?`${esc(m[1])} <span class="muted">[${esc(m[2])}]</span>`:esc(n)};
+function makeChart(reason){
+ const old=S.get('chart',null),t=P.t;
+ const plan=EN.buildPlan(P,t,{seed:(Date.now()%1e9)|0,start:today()});
+ const was2=old&&old.ver===2,changed=!was2||old.targets.kcal!==t.kcal||old.targets.p!==t.p;
+ const v=was2?(changed?old.v+1:old.v):1;
+ let hist=was2?(old.history||[]):[];
+ if(was2&&changed)hist=hist.concat([{v:old.v,date:old.created,kcal:old.targets.kcal,p:old.targets.p,c:old.targets.c,f:old.targets.f,w:old.w,reason:old.reason||''}]).slice(-12);
+ return Object.assign(plan,{created:today(),v,history:hist,reason:reason||(was2?(changed?'Details updated':old.reason):'First plan'),w:P.w,targets:{kcal:t.kcal,p:t.p,c:t.c,f:t.f,fib:t.fib}});
 }
-function chartHeader(c){const t=P.t,conds=P.cond.map(condName).concat(P.condOther||[]);
- return [['Name',P.name||'—'],['Date',new Date(c.created+'T12:00').toLocaleDateString('en-IN')],['Type of diet',`${{lose:'Weight loss',keep:'Healthy / maintain',gain:'Weight gain'}[t.goal]} · ${DIETNAME[P.diet]}`],['Age / Gender',`${P.age} · ${P.sex==='m'?'Male':'Female'}`],['Initial weight',`${(P.start&&P.start.w)||P.w} kg`],['Current weight',`${P.w} kg`],['Target',t.goal==='keep'?'Maintain':`${P.tw} kg`],['Daily target',t.noCal?'Calories hidden':`${fmt(c.target)} kcal · protein ${t.p} g`],['Medical concerns',conds.join(', ')||'Nothing mentioned'],['Blood group',P.blood||'—'],['Likes',(P.likes||[]).join(', ')||'—'],['Dislikes',(P.dislikes||[]).join(', ')||'—'],['Allergy',P.allergies.join(', ')||'None']]}
+function getChart(){let c=S.get('chart',null);if(!c||c.ver!==2||!c.days){c=makeChart();S.set('chart',c)}return c}
+const dLabel=iso=>new Date(iso+'T12:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+function nbar(lbl,v,tg,col,u){const pc=tg?Math.min(130,v/tg*100):0,off=tg&&Math.abs(v-tg)/tg>0.1;return `<div class="nb"><div class="nb-h"><span>${lbl}</span><b class="${off?'warnc':''}">${fmt(v)}${u}<span class="muted"> / ${fmt(tg)}${u}</span></b></div><div class="bar"><i style="width:${Math.min(100,pc)}%;background:${col}"></i></div></div>`}
+function flagHTML(t,c){const cls={refer:'r',caution:'w',info:'i'};
+ return t.flags.map(f=>`<div class="alert ${cls[f.lvl]}">${f.lvl==='refer'?'⚕️ ':f.lvl==='caution'?'⚠️ ':'ℹ️ '}${esc(f.text)}</div>`).join('')+t.warn.map(x=>`<div class="alert w">⚠️ ${esc(x)}</div>`).join('')+t.notes.map(x=>`<div class="alert i">${esc(x)}</div>`).join('')+(c.notes||[]).map(x=>`<div class="alert w">${esc(x)}</div>`).join('')}
 function renderChart(){
- let c=S.get('chart',null);if(!c||!c.days){c=makeChart();S.set('chart',c)}
- const t=P.t;
- $('chartOut').innerHTML=`<div class="card">
-  <div class="mealhd" style="margin:0"><h2 style="margin:0">📄 Personal Diet Plan</h2>${badge(c.src==='ai'?'est':'db').replace(/>[^<]+</,c.src==='ai'?'>Made by AI<':'>FitMentor template<')}</div>
-  <table style="margin-top:8px">${chartHeader(c).map(([k,v])=>`<tr><td class="muted" style="width:40%">${k}</td><td><b>${esc(v)}</b></td></tr>`).join('')}</table>
-  ${P.skipped&&P.skipped.length?`<div class="tiny muted" style="margin-top:6px">Skip kiye sawaal: ${esc(P.skipped.join(', '))} — <a href="#" onclick="startOnb(true);return false">ab bharo</a></div>`:''}
- </div>
- <div class="card"><h3 style="margin-top:0">💧 Water</h3><div class="small"><b>Morning:</b> ${esc(c.waters.early)}<br><b>Whole day:</b> ${esc(c.waters.day)}</div>
-  <h3>🌾 Grain</h3><div class="small">${esc(c.grain)}</div>
-  <h3>✅ You can eat</h3><div class="small"><b>Vegetables:</b> ${esc(c.allowedVeg.join(', '))}<br><b>Fruits:</b> ${esc(c.allowedFruits.join(', '))}</div>
-  <h3>🚫 Avoid</h3><div class="small">${esc(c.avoid.join(' · '))}</div>
-  ${c.condNote?`<div class="alert i">${esc(c.condNote)}</div>`:''}
-  <h3>💡 Tips</h3><ul class="small" style="margin:0;padding-left:18px">${c.tips.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
- ${c.days.map((d,i)=>`<div class="card"><div class="mealhd" style="margin:0"><h3 style="margin:0;color:#1D4A9E">Day ${i+1}</h3><span class="small" style="color:#1D4A9E;font-weight:600">Date: ${new Date(d.date+'T12:00').toLocaleDateString('en-IN')}</span></div>
-  <table class="dchart"><tr><th>Food</th><th>Amount</th>${t.noCal?'':'<th style="text-align:right">kcal</th>'}</tr>${d.rows.map(r=>(r.meal?`<tr class="mh"><td colspan="${t.noCal?2:3}"><b>${esc(r.time)}</b> · ${esc(r.meal)}</td></tr>`:'')+`<tr><td>${esc(r.item)}</td><td class="muted">${esc(r.amount)}</td>${t.noCal?'':`<td style="text-align:right">${fmt(r.kcal)}</td>`}</tr>`).join('')}
-  <tr class="tot"><td colspan="${t.noCal?1:2}">Total${t.noCal?'':` (target ${fmt(c.target)})`} · P ${r0(d.p)} g</td>${t.noCal?'<td></td>':`<td style="text-align:right">${fmt(d.kcal)}</td>`}</tr></table>
-  <button class="btn sec sm" style="margin-top:8px" data-logday="${i}">Log this day’s food for today</button></div>`).join('')}
- <div class="card tiny muted">This chart is a FitMentor estimate (typical values), not a doctor’s prescription. If you have a medical condition, are pregnant or take medicines, check it with your doctor / registered dietitian.</div>`;
- $('chartOut').querySelectorAll('[data-logday]').forEach(b=>b.onclick=()=>{const d=c.days[+b.dataset.logday];let meal='Breakfast';const map={'Early morning':'Breakfast',Breakfast:'Breakfast','Mid morning':'Snacks',Lunch:'Lunch',Evening:'Snacks',Dinner:'Dinner','Post dinner':'Dinner'};d.rows.forEach(r=>{if(r.meal)meal=map[r.meal]||'Snacks';if(r.kcal>0)dayLog(today()).food.push({n:r.item,lbl:r.amount,k:r.kcal,p:r.p,c:r1(Math.max(0,r.kcal-r.p*4)*.55/4),f:r1(Math.max(0,r.kcal-r.p*4)*.45/9),src:'est',m:meal})});saveLog();toast('Added to today’s log');b.textContent='✓ Logged';b.disabled=true});
- $('chartAI').classList.toggle('hide',!AI);$('chartDl').disabled=false;
+ const c=getChart(),t=P.t,nc=t.noCal,ex=EN.explain(P,t),g=EN.guidance(P,t,c);
+ if(chartDay>=c.days.length)chartDay=0;
+ const d=c.days[chartDay],T=EN.dayTot(d),review=t.status==='review';
+ let gateOpen=true;try{gateOpen=!review||sessionStorage.getItem('fm_gate_'+c.v)==='1'}catch(e){}
+ const kpi=(l,v,s)=>`<div class="np-k"><span>${l}</span><b>${v}</b>${s?`<i>${s}</i>`:''}</div>`;
+ const conds=(P.cond||[]).map(condName).concat(P.condOther||[]);
+ let h=`<div class="card np-head">
+  <div class="np-top"><div><div class="eyebrow">Personal nutrition plan · version ${c.v}</div><h2>${P.name?esc(P.name)+'’s':'Your'} diet chart</h2>
+   <div class="small muted">${GOALNAME[t.goal]}${t.goal==='keep'&&P.focus&&P.focus!=='health'?' · '+FOCUSNAME[P.focus]:''} · ${DIETNAME[P.diet]} · ${c.meals} meals a day · made ${new Date(c.created+'T12:00').toLocaleDateString('en-IN')}</div></div>
+   <div class="np-acts"><button class="btn sm" id="npPrint">⬇️ PDF / print</button><button class="btn ghost sm" id="npNew">↻ New variety</button><button class="btn ghost sm" onclick="startOnb(true)">Edit details</button></div></div>
+  <div class="np-kpis">${nc?'':kpi('Calories',fmt(t.kcal),'kcal/day')}${kpi('Protein',t.p+' g',r1(t.p/t.refW)+' g/kg')}${kpi('Carbs',t.c+' g','')}${kpi('Fat',t.f+' g',r0(t.fatPct*100)+'% energy')}${kpi('Fibre',t.fib+' g','')}${kpi('Water',t.water+' L',t.waterDoc?'ask doctor':'drinks')}</div>
+  <div class="np-sum small"><span>${P.age} y · ${P.sex==='m'?'Male':'Female'} · ${P.h} cm · ${P.w} kg · BMI ${r1(t.bmi)} (${bmiCat(t.bmi)[0]})</span>${t.goal!=='keep'?`<span>Target ${P.tw} kg</span>`:''}${conds.length?`<span>Health: ${esc(conds.join(', '))}</span>`:''}${(P.allergies||[]).length?`<span>Allergy: ${esc(P.allergies.join(', '))}</span>`:''}</div>
+ </div>`;
+ h+=flagHTML(t,c);
+ if(review&&!gateOpen){
+  $('chartOut').innerHTML=h+`<div class="card"><h3 style="margin-top:0">This plan needs a professional’s check</h3><div class="small">Because of what you told us, a general app plan could be unsafe for you. FitMentor has made a <b>draft</b> you can take to your doctor or a registered dietitian — please don’t follow it on your own.</div><button class="btn sec" style="margin-top:12px" id="gateOk">Show the draft to share with my doctor</button></div>`;
+  $('gateOk').onclick=()=>{try{sessionStorage.setItem('fm_gate_'+c.v,'1')}catch(e){}renderChart()};
+  $('npPrint').onclick=printChart;$('npNew').onclick=newVariety;return}
+ // day tabs
+ h+=`<div class="card"><div class="np-days" role="tablist">${c.days.map((x,i)=>`<button role="tab" aria-selected="${i===chartDay}" class="${i===chartDay?'on':''}" data-day="${i}"><b>Day ${i+1}</b><span>${dLabel(x.date)}</span></button>`).join('')}</div>
+ ${review?'<div class="alert r" style="margin-top:10px">Draft — to be checked by your doctor / dietitian.</div>':''}
+ <div class="np-tablewrap"><table class="np-t"><thead><tr><th>Food and quantity</th>${nc?'':'<th class="n m">kcal</th>'}<th class="n m">Protein</th><th class="n m">Carbs</th><th class="n m">Fat</th><th></th></tr></thead><tbody>`;
+ d.meals.forEach((m,mi)=>{const mt=EN.mealTot(m);if(!m.items.length)return;
+  h+=`<tr class="mh"><td colspan="${nc?5:6}"><b>${esc(m.time)}</b> · ${esc(m.name)}<span class="muted">${nc?'':` · ${fmt(mt.k)} kcal`} · ${r0(mt.p)} g protein</span></td></tr>`;
+  m.items.forEach((it,ii)=>{const x=EN.BY[it.id],n=EN.nut(it.id,it.q);
+   h+=`<tr><td>${bil(x.n)}<div class="tiny muted">${esc(EN.qtyText(it.id,it.q))}${it.sw?' · swapped':''}</div><div class="tiny mob"${n.k<5?' style="display:none"':''}>${nc?'':fmt(n.k)+' kcal · '}P ${r1(n.p)} · C ${r0(n.c)} · F ${r1(n.f)} g</div></td>${nc?'':`<td class="n m">${fmt(n.k)}</td>`}<td class="n m">${r1(n.p)}</td><td class="n m">${r0(n.c)}</td><td class="n m">${r1(n.f)}</td><td class="n sw">${x.role==='drink'&&x.k<10?'':`<button class="swbtn" data-sw="${mi}.${ii}" aria-label="Swap ${esc(x.n)}">⇄</button>`}</td></tr>`})});
+ h+=`<tr class="tot"><td>Day total<div class="tiny mob">${nc?'':fmt(T.k)+' kcal · '}P ${r0(T.p)} · C ${r0(T.c)} · F ${r0(T.f)} g</div></td>${nc?'':`<td class="n m">${fmt(T.k)}</td>`}<td class="n m">${r0(T.p)}</td><td class="n m">${r0(T.c)}</td><td class="n m">${r0(T.f)}</td><td></td></tr></tbody></table></div>
+ <div class="np-bars">${nc?'':nbar('Calories',T.k,c.kT,'linear-gradient(90deg,var(--pri),var(--lime))','')}${nbar('Protein',T.p,t.p,'var(--pro)',' g')}${nbar('Carbs',T.c,t.c,'var(--carb)',' g')}${nbar('Fat',T.f,t.f,'var(--fat)',' g')}${nbar('Fibre',T.fib,t.fib,'var(--water)',' g')}</div>
+ <div class="tiny muted" style="margin-top:6px">${nc?'':`Check: 4 × ${r0(T.p)} g protein + 4 × ${r0(T.c)} g carbs + 9 × ${r0(T.f)} g fat = ${fmt(T.p*4+T.c*4+T.f*9)} kcal (fibre and rounding explain small gaps). `}Oil inside these dishes: about ${r1(T.oil)} tsp. Tap ⇄ to swap any food — the totals update.</div>
+ <div class="row" style="margin-top:10px"><button class="btn sec sm" id="npLog">+ Log Day ${chartDay+1} as today’s food</button></div></div>`;
+ // why
+ h+=`<div class="card"><h3 style="margin-top:0">Why these numbers</h3>${ex.map(e=>`<div class="np-why"><b>${esc(e.h)}</b><div class="small">${esc(e.t)}</div><details><summary class="tiny">Source</summary><ul class="tiny">${e.src.map(s=>{const z=EN.SOURCES[s];return z?`<li><a href="${z.u}" target="_blank" rel="noopener">${esc(z.n)}</a> (${esc(z.y)}) · ${esc(z.e)}</li>`:''}).join('')}</ul></details></div>`).join('')}
+ <details class="np-more"><summary class="small">Assumptions and limits</summary><ul class="small">
+  <li>BMR ${r0(t.bmr)} kcal (Mifflin-St Jeor) × activity ${t.act} = maintenance ${r0(t.tdee)} kcal. Equations are usually within ±10%; Asian groups were under-represented in the studies.</li>
+  <li>BMI uses Asian Indian cut-offs (overweight ≥23, obesity ≥25). BMI doesn’t separate muscle from fat — waist size adds useful information.</li>
+  <li>Food values are typical home-style recipes (IFCT 2017 ingredients, 1 tsp oil per katori of dal or sabji). Your own cooking can differ.</li>
+  <li>Protein reference weight ${r0(t.refW)} kg. Calories never go below ${fmt(t.floor)} kcal (FitMentor safety rule; NICE NG246 limits low-energy diets to specialist care).</li>
+  <li>Weekly reviews use 7-day average weights, not single weigh-ins.</li></ul></details></div>`;
+ // guidance
+ h+=`<div class="card"><h3 style="margin-top:0">How to follow it</h3>
+  <div class="np-g"><b>💧 Water</b><div class="small">${esc(g.water)}</div></div>
+  <div class="np-g"><b>✅ Include</b><ul class="small">${g.include.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+  <div class="np-g"><b>🚫 Limit</b><ul class="small">${g.limit.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+  <div class="np-g"><b>🧂 Salt · sugar · oil</b><div class="small">Salt under 5 g a day (about 1 level tsp in total). ${t.sugar?'Added sugar 25 g at most (about 5 tsp, including tea).':'No added sugar.'} Oil in this plan: about ${g.oil} tsp a day.</div></div>
+  <div class="np-g"><b>🏃 Exercise</b><div class="small">${esc(g.exercise)}</div></div>
+  <div class="np-g"><b>📏 Daily rules</b><ul class="small">${g.rules.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>`;
+ // weekly review
+ h+=`<div class="card" id="revCard"><h3 style="margin-top:0">Weekly check-in</h3><div class="small muted">FitMentor changes your plan only after looking at your weekly average weight, your food log and how you feel — never because of one weigh-in.</div>
+  <div class="grid" style="margin-top:10px">${[['hunger','Hunger this week',['1 – rarely hungry','2','3 – normal','4','5 – hungry all day']],['energy','Energy',['1 – very low','2','3 – normal','4','5 – great']],['perf','Workouts / daily activity',['1 – much harder','2','3 – same','4','5 – better']]].map(([k,l,o])=>`<div><label for="ci_${k}">${l}</label><select id="ci_${k}">${o.map((x,i)=>`<option value="${i+1}" ${i===2?'selected':''}>${x}</option>`).join('')}</select></div>`).join('')}</div>
+  <button class="btn sec" style="margin-top:10px" id="revGo">Review my plan</button><div id="revOut"></div></div>`;
+ if(c.history&&c.history.length){h+=`<div class="card"><h3 style="margin-top:0">Plan history</h3><table class="np-hist"><tr><th>Version</th><th>Date</th>${nc?'':'<th class="n">kcal</th>'}<th class="n">Protein</th><th class="n">Weight</th><th>Why it changed</th></tr>${c.history.slice().reverse().map(o=>`<tr><td>v${o.v}</td><td>${new Date(o.date+'T12:00').toLocaleDateString('en-IN')}</td>${nc?'':`<td class="n">${fmt(o.kcal)}</td>`}<td class="n">${o.p} g</td><td class="n">${o.w||'—'} kg</td><td class="small">${esc(o.reason||'')}</td></tr>`).join('')}<tr class="cur"><td>v${c.v} (now)</td><td>${new Date(c.created+'T12:00').toLocaleDateString('en-IN')}</td>${nc?'':`<td class="n">${fmt(t.kcal)}</td>`}<td class="n">${t.p} g</td><td class="n">${P.w} kg</td><td class="small">${esc(c.reason||'')}</td></tr></table></div>`}
+ h+=`<div class="card tiny muted">FitMentor gives general nutrition information, not medical advice. Results differ from person to person and no amount of weight loss is guaranteed. If you have a medical condition, are pregnant or take medicines, check this plan with your doctor or a registered dietitian. <a href="#" id="srcAll">All sources</a></div>`;
+ $('chartOut').innerHTML=h;
+ $('chartOut').querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{chartDay=+b.dataset.day;renderChart()});
+ $('chartOut').querySelectorAll('[data-sw]').forEach(b=>b.onclick=()=>{const [mi,ii]=b.dataset.sw.split('.').map(Number);openSwap(chartDay,mi,ii)});
+ $('npPrint').onclick=printChart;$('npNew').onclick=newVariety;$('npLog').onclick=()=>logPlanDay(chartDay);
+ $('revGo').onclick=runReview;$('srcAll').onclick=e=>{e.preventDefault();sourcesSheet()};
 }
-$('chartNew').onclick=()=>{S.set('chart',makeChart());renderChart();toast('New chart created')};
-$('chartAI').onclick=async()=>{if(!AI){$('chartErr').textContent=AI_OFF;return}$('chartErr').textContent='';$('chartAI').disabled=true;$('chartAI').textContent='Creating…';
- const t=P.t,target=t.noCal?Math.round(t.tdee/10)*10:t.kcal,T=slotTimes(),conds=P.cond.map(condName).concat(P.condOther||[]);
- const prompt=`${SAFETY_RULES}\nMake a 4-day Indian home-style diet chart like a dietitian's printed plan. ${profileText()} Medical concerns: ${conds.join(', ')||'none'}. Likes: ${(P.likes||[]).join(', ')||'-'}. Dislikes (never use): ${(P.dislikes||[]).join(', ')||'-'}. Allergies (never use): ${P.allergies.join(', ')||'-'}. Grain at home: ${P.grain||'wheat'}. Meal times: early ${fromMin(T.early)}, breakfast ${fromMin(T.bf)}, mid-morning ${fromMin(T.mid)}, lunch ${fromMin(T.lunch)}, evening ${fromMin(T.eve)}, dinner ${fromMin(T.dinner)}${T.post?', post dinner '+fromMin(T.post):''}. Each day total about ${target} kcal (±8%), never below ${P.sex==='m'?1500:1200}, protein about ${t.p} g. Use katori / nos. / glass amounts. For medical concerns give only widely accepted general food guidance and add "please confirm with your doctor"; no medicines, no supplements doses.
-Return ONLY JSON: {"waters":{"early":"","day":""},"grain":"","allowedVeg":[""],"allowedFruits":[""],"avoid":[""],"condNote":"","tips":[""],"days":[{"rows":[{"time":"08:00 am","meal":"Early morning","item":"","amount":"","kcal":number,"p":number}]}]}`;
- try{const j=await askJSON(prompt,{modelTier:'complex'});const S2=v=>String(v??'').slice(0,120),A=a=>(Array.isArray(a)?a:[]).map(S2).filter(Boolean).slice(0,25);
-  const days=(j.days||[]).slice(0,7).map((d,i)=>{let last='';const rows=(d.rows||[]).slice(0,25).map(r=>{const meal=S2(r.meal);const first=meal&&meal!==last;if(meal)last=meal;return{time:first?S2(r.time):'',meal:first?meal:'',item:S2(r.item),amount:S2(r.amount),kcal:Math.max(0,r0(r.kcal)),p:Math.max(0,r1(r.p))}}).filter(r=>r.item);return{date:addDays(today(),i),rows,kcal:sum(rows,'kcal'),p:r1(sum(rows,'p'))}}).filter(d=>d.rows.length);
-  if(!days.length)throw{};const floor=P.sex==='m'?1500:1200;const bad=days.filter(d=>d.kcal<floor*.95||d.kcal>target*1.15).length;
-  const c={created:today(),src:'ai',target,days,waters:{early:S2(j.waters&&j.waters.early)||'1 glass of warm water',day:S2(j.waters&&j.waters.day)||`${t.water} litre`},grain:S2(j.grain)||P.grain||'—',allowedVeg:A(j.allowedVeg),allowedFruits:A(j.allowedFruits),avoid:A(j.avoid).concat(P.allergies.map(a=>a+' (allergy)')),condNote:(S2(j.condNote)||'')+(conds.length?' Confirm with your doctor / dietitian.':''),tips:A(j.tips)};
-  S.set('chart',c);renderChart();if(bad)$('chartErr').textContent=`${bad} days are far from the target — adjust the portions a little.`;toast('AI chart ready')}
- catch(e){$('chartErr').textContent=aiErr(e)}$('chartAI').disabled=false;$('chartAI').textContent='✨ Make a personal AI chart'};
-function chartDoc(){const c=S.get('chart',null),t=P.t;if(!c)return'';
- const cell=s=>esc(s);
- return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Personal Diet Plan</title><style>body{font-family:Arial,sans-serif;margin:24px;color:#111;font-size:13px}h1{text-align:center;font-size:22px;margin:0 0 12px}table{width:100%;border-collapse:collapse;margin:6px 0 14px}td,th{border:1px solid #999;padding:4px 6px;text-align:center}th{color:#c00;font-size:15px}.info td{text-align:left}.day{color:#1a3fbf;font-weight:bold;display:flex;justify-content:space-between;margin-top:14px}.tot td{color:#c00;font-weight:bold;border-top:2px solid #c00}h3{margin:12px 0 4px}.note{font-size:11px;color:#555;margin-top:16px}@media print{.day{break-before:auto}}</style></head><body>
-<h1>Personal Diet Plan</h1><table class="info">${chartHeader(c).map(([k,v])=>`<tr><td style="width:30%"><b>${k}</b></td><td>${cell(v)}</td></tr>`).join('')}</table>
-<h3>Paani</h3><div>Morning: ${cell(c.waters.early)}<br>Whole day: ${cell(c.waters.day)}</div><h3>Anaj</h3><div>${cell(c.grain)}</div>
-<h3>You can eat</h3><div><b>Vegetables:</b> ${cell(c.allowedVeg.join(', '))}<br><b>Fruits:</b> ${cell(c.allowedFruits.join(', '))}</div><h3>Avoid</h3><div>${cell(c.avoid.join(', '))}</div>${c.condNote?`<p><i>${cell(c.condNote)}</i></p>`:''}
-<h3>Tips</h3><ul>${c.tips.map(x=>`<li>${cell(x)}</li>`).join('')}</ul>
-<table><tr><th>Time</th><th>Meal Type</th><th>Meal</th><th>No./Amt</th>${t.noCal?'':'<th>kcal</th>'}</tr>${c.days.map((d,i)=>`<tr><td colspan="${t.noCal?4:5}" style="border:0;padding:0"><div class="day"><span>Day: ${i+1}</span><span>Date: ${new Date(d.date+'T12:00').toLocaleDateString('en-IN')}</span></div></td></tr>${d.rows.map(r=>`<tr><td>${cell(r.time)}</td><td>${cell(r.meal.toUpperCase())}</td><td>${cell(r.item)}</td><td>${cell(r.amount)}</td>${t.noCal?'':`<td>${fmt(r.kcal)}</td>`}</tr>`).join('')}<tr class="tot"><td colspan="${t.noCal?3:4}">Total:</td><td>${t.noCal?'P '+r0(d.p)+' g':fmt(d.kcal)+' kcal · P '+r0(d.p)+' g'}</td></tr>`).join('')}</table>
-<div class="note">Made with FitMentor (${c.src==='ai'?'AI':'template'}), ${new Date().toLocaleDateString('en-IN')}. Calories are estimates. This is not a doctor’s prescription.</div></body></html>`}
-$('chartDl').onclick=async()=>{const html=chartDoc();if(!html)return;const fn=`FitMentor-diet-chart-${today()}.html`;
- let dl=null;try{dl=await claude.use('downloads')}catch(e){}
- if(dl){try{await dl.save({filename:fn,data:new Blob([html],{type:'text/html'})});toast('File saved — open it and Print → Save as PDF');return}catch(e){if(e&&(e.code==='declined'||e.code==='dismissed')){toast('Download cancelled');return}try{await dl.save({filename:fn,data:html});toast('File saved');return}catch(e2){}}}
- $('chartTxt').value=html;$('chartTxt').classList.remove('hide');try{await navigator.clipboard.writeText(html);toast('Download didn’t work — chart HTML copied')}catch(e){$('chartTxt').select();toast('Download didn’t work — copy the text')}};
+function newVariety(){const c=makeChart('New food variety');S.set('chart',c);chartDay=0;renderChart();toast('New meals, same targets')}
+function openSwap(di,mi,ii){const c=getChart(),it=c.days[di].meals[mi].items[ii],x=EN.BY[it.id],n=EN.nut(it.id,it.q),nc=P.t.noCal;const opts=EN.swapOptions(P,c,di,mi,ii);
+ openSheet(`<h2>Swap: ${bil(x.n)}</h2><div class="small muted">Now: ${esc(EN.qtyText(it.id,it.q))}${nc?'':` · ${fmt(n.k)} kcal`} · ${r1(n.p)} g protein. The portion of each option is set to match the protein${nc?'':' and calories'} as closely as possible.</div>
+ <div style="margin-top:10px">${opts.length?opts.map((o,i)=>`<button class="swopt" data-i="${i}"><b>${bil(o.n)}</b><span class="small">${esc(o.amt)}</span><span class="tiny muted">${nc?'':o.k+' kcal · '}P ${o.p} g · C ${o.c} g · F ${o.f} g${o.notes.length?' · <span class="warnc">'+esc(o.notes.join(', '))+'</span>':''}</span></button>`).join(''):'<div class="alert i">No alternatives fit your diet type, allergies, dislikes, budget and cooking time for this meal.</div>'}</div>
+ <button class="btn ghost block" style="margin-top:10px" onclick="closeSheet()">Cancel</button>`);
+ $('sheet').querySelectorAll('.swopt').forEach(b=>b.onclick=()=>{const o=opts[+b.dataset.i];EN.applySwap(c,di,mi,ii,o.id,o.q);S.set('chart',c);closeSheet();renderChart();toast('Swapped — day totals updated')})}
+function logPlanDay(di){const c=getChart(),d=c.days[di],map={early:'Breakfast',bf:'Breakfast',mid:'Snacks',lunch:'Lunch',eve:'Snacks',din:'Dinner',post:'Dinner'};let n=0;
+ d.meals.forEach(m=>m.items.forEach(it=>{const x=EN.BY[it.id],v=EN.nut(it.id,it.q);if(v.k<5)return;dayLog(today()).food.push({n:x.n,lbl:EN.qtyText(it.id,it.q),k:r0(v.k),p:r1(v.p),c:r1(v.c),f:r1(v.f),src:'est',m:map[m.slot]||'Snacks'});n++}));
+ saveLog();toast(`${n} foods added to today’s log`);const b=$('npLog');if(b){b.textContent='✓ Logged';b.disabled=true}}
+function runReview(){const ci={hunger:$('ci_hunger').value,energy:$('ci_energy').value,perf:$('ci_perf').value};const r=EN.weeklyReview(P,P.t,weights,log,ci,today());const s=r.stats,nc=P.t.noCal;
+ let h=`<div class="np-rev">${s.w1!=null?`<div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:10px"><div class="stat"><div class="l">This week avg</div><div class="v" style="font-size:18px">${s.w1??'—'} kg</div></div><div class="stat"><div class="l">Last week avg</div><div class="v" style="font-size:18px">${s.w2??'—'} kg</div></div><div class="stat"><div class="l">Food logged</div><div class="v" style="font-size:18px">${s.logDays}/14 days</div></div></div>`:''}${r.msgs.map(m=>`<div class="alert i">${esc(m)}</div>`).join('')}`;
+ if(r.rec.type==='adjust'){h+=`<div class="alert w"><b>Suggested change: ${r.rec.delta>0?'+':''}${r.rec.delta} kcal a day.</b> ${esc(r.rec.reason)}</div><div class="row" style="margin-top:8px"><button class="btn" id="revApply">Apply — make version ${getChart().v+1}</button><button class="btn ghost" id="revKeep">Keep current plan</button></div>`}
+ if(s.w1!=null&&Math.abs(P.w-s.w1)>=2)h+=`<button class="btn sec" style="margin-top:8px" id="revW">Update plan weight to ${s.w1} kg</button>`;
+ $('revOut').innerHTML=h+'</div>';
+ const ap=$('revApply');if(ap)ap.onclick=()=>{P.adj=Math.max(-300,Math.min(300,(P.adj||0)+r.rec.delta));P.t=computeTargets(P);S.set('profile2',P);S.set('chart',makeChart(`Weekly review: ${r.rec.delta>0?'+':''}${r.rec.delta} kcal (${r.rec.reason.split('.')[0]})`));renderChart();toast('Plan updated — new version saved')};
+ const kp=$('revKeep');if(kp)kp.onclick=()=>{$('revOut').innerHTML='<div class="alert g">Kept your current plan.</div>'};
+ const rw=$('revW');if(rw)rw.onclick=()=>{P.w=s.w1;P.t=computeTargets(P);S.set('profile2',P);S.set('chart',makeChart(`Weight updated to ${s.w1} kg`));renderChart();toast('Targets recalculated for your new weight')}}
+function sourcesSheet(){openSheet(`<h2>Research library</h2><div class="small muted">Sources behind FitMentor’s calculations. “Emerging” means newer or less certain evidence, used carefully.</div><ul class="small" style="padding-left:18px">${Object.values(EN.SOURCES).map(z=>`<li style="margin:6px 0"><a href="${z.u}" target="_blank" rel="noopener">${esc(z.n)}</a> · ${esc(z.y)} · <i>${esc(z.e)}</i></li>`).join('')}</ul><button class="btn block" onclick="closeSheet()">Close</button>`)}
+// ---------- printable / PDF version (same plan object as the screen) ----------
+function printDoc(c){const t=P.t,nc=t.noCal,ex=EN.explain(P,t),g=EN.guidance(P,t,c),conds=(P.cond||[]).map(condName).concat(P.condOther||[]);
+ const e=s=>esc(s),D=s=>new Date(s+'T12:00').toLocaleDateString('en-IN');
+ const rows=[['Name',P.name||'—'],['Age · gender',`${P.age} · ${P.sex==='m'?'Male':'Female'}`],['Height · weight',`${P.h} cm · ${P.w} kg (BMI ${r1(t.bmi)}, ${bmiCat(t.bmi)[0]})`],['Goal',GOALNAME[t.goal]+(t.goal!=='keep'?` → ${P.tw} kg`:'')],['Diet type',DIETNAME[P.diet]],['Health',conds.join(', ')||'Nothing mentioned'],['Allergies',(P.allergies||[]).join(', ')||'None'],['Dislikes',(P.dislikes||[]).join(', ')||'—']];
+ const tg=[nc?null:['Calories',fmt(t.kcal)+' kcal'],['Protein',t.p+' g'],['Carbs',t.c+' g'],['Fat',t.f+' g'],['Fibre',t.fib+' g'],['Water',t.waterDoc?'As advised by doctor':t.water+' L'],['Salt','< 5 g'],['Added sugar',t.sugar?'≤ 25 g':'None']].filter(Boolean);
+ const flags=t.flags.map(f=>`<li class="${f.lvl}">${e(f.text)}</li>`).join('')+t.warn.map(x=>`<li class="caution">${e(x)}</li>`).join('')+(c.notes||[]).map(x=>`<li class="caution">${e(x)}</li>`).join('');
+ const dayHTML=(d,di)=>{const T=EN.dayTot(d);return `<section class="day"><h3><span>Day ${di+1}</span><span>${e(dLabel(d.date))}</span></h3><table><thead><tr><th style="width:15%">Time</th><th>Food and quantity</th>${nc?'':'<th class="n">kcal</th>'}<th class="n">Protein</th><th class="n">Carbs</th><th class="n">Fat</th></tr></thead><tbody>${d.meals.filter(m=>m.items.length).map((m,mi)=>{const mt=EN.mealTot(m);const main=m.items.findIndex(it=>!['drink','salad','cereal'].includes(EN.BY[it.id].role));const alts=main>=0?EN.swapOptions(P,c,di,c.days[di].meals.indexOf(m),main).slice(0,2):[];
+  return m.items.map((it,ii)=>{const x=EN.BY[it.id],n=EN.nut(it.id,it.q);return `<tr>${ii===0?`<td rowspan="${m.items.length+(alts.length?1:0)}" class="when"><b>${e(m.time)}</b><br>${e(m.name)}<br><span class="mut">${nc?'':fmt(mt.k)+' kcal · '}${r0(mt.p)} g P</span></td>`:''}<td>${e(x.n)} — <span class="mut">${e(EN.qtyText(it.id,it.q))}</span></td>${nc?'':`<td class="n">${fmt(n.k)}</td>`}<td class="n">${r1(n.p)}</td><td class="n">${r0(n.c)}</td><td class="n">${r1(n.f)}</td></tr>`}).join('')+(alts.length?`<tr class="alt"><td colspan="${nc?4:5}">Or swap ${e(EN.BY[m.items[main].id].n.split(' [')[0])} for: ${alts.map(a=>`${e(a.n.split(' [')[0])} (${e(a.amt)})`).join(' · ')}</td></tr>`:'')}).join('')}
+  <tr class="tot"><td colspan="2">Day total${nc?'':` (target ${fmt(c.kT)} kcal)`}</td>${nc?'':`<td class="n">${fmt(T.k)}</td>`}<td class="n">${r0(T.p)}</td><td class="n">${r0(T.c)}</td><td class="n">${r0(T.f)}</td></tr></tbody></table></section>`};
+ return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>FitMentor diet chart – ${e(P.name||'')} v${c.v}</title><style>
+ @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:Inter,Segoe UI,Arial,sans-serif;color:#14202b;font-size:11px;line-height:1.45;margin:0}
+ header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0b8a96;padding-bottom:8px;margin-bottom:10px}h1{font-size:22px;margin:0;color:#0b5d66}.mut{color:#5d6b78}
+ .grid{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #cdd6dd;padding:4px 6px;vertical-align:top;text-align:left}th{background:#eef4f6;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#3b4a57}
+ .n{text-align:right;white-space:nowrap}.kv td:first-child{width:34%;color:#5d6b78}.tg td:last-child{font-weight:700}
+ h2{font-size:13px;margin:14px 0 6px;color:#0b5d66;text-transform:uppercase;letter-spacing:.06em}
+ ul.flags{padding-left:16px;margin:4px 0}ul.flags li.refer{color:#b42318;font-weight:600}ul.flags li.caution{color:#9a5b00}
+ .day{margin-top:10px}.day h3{break-after:avoid}tr{break-inside:avoid}.day h3{display:flex;justify-content:space-between;background:#0b5d66;color:#fff;margin:0;padding:5px 8px;font-size:12px;border-radius:4px 4px 0 0}
+ td.when{background:#f6f9fa;width:15%}.alt td{font-size:10px;color:#5d6b78;background:#fbfcfd}.tot td{font-weight:700;background:#e6f3f4;border-top:2px solid #0b8a96}
+ .why p{margin:3px 0}.foot{margin-top:14px;font-size:9.5px;color:#5d6b78;border-top:1px solid #cdd6dd;padding-top:6px}.draft{border:2px solid #b42318;color:#b42318;padding:6px 8px;font-weight:700;margin:8px 0}
+ </style></head><body>
+ <header><div><h1>Personal Diet Plan</h1><div class="mut">FitMentor · version ${c.v} · made ${D(c.created)} · ${c.meals} meals a day</div></div><div class="mut" style="text-align:right">${e(P.name||'')}<br>${e(GOALNAME[t.goal])}</div></header>
+ ${t.status==='review'?'<div class="draft">DRAFT — to be checked by a doctor or registered dietitian before use.</div>':''}
+ <div class="grid"><table class="kv">${rows.map(([k,v])=>`<tr><td>${k}</td><td>${e(v)}</td></tr>`).join('')}</table><table class="tg"><tr><th colspan="2">Daily targets</th></tr>${tg.map(([k,v])=>`<tr><td>${k}</td><td>${e(v)}</td></tr>`).join('')}</table></div>
+ ${flags?`<h2>Important</h2><ul class="flags">${flags}</ul>`:''}
+ <h2>Meal plan</h2>${c.days.map(dayHTML).join('')}
+ <h2>How to follow it</h2><p><b>Water:</b> ${e(g.water)}</p><p><b>Include:</b> ${e(g.include.join('; '))}.</p><p><b>Limit:</b> ${e(g.limit.join('; '))}.</p><p><b>Exercise:</b> ${e(g.exercise)}</p><p><b>Rules:</b> ${e(g.rules.join('; '))}. Oil in this plan ≈ ${g.oil} tsp/day.</p>
+ <h2>Why these numbers</h2><div class="why">${ex.map(x=>`<p><b>${e(x.h)}:</b> ${e(x.t)}</p>`).join('')}</div>
+ <h2>Weekly review</h2><p>Weigh yourself 2–3 times a week. FitMentor compares weekly averages and your food log before changing anything. Previous versions: ${(c.history||[]).map(o=>`v${o.v} (${D(o.date)}, ${nc?'':fmt(o.kcal)+' kcal, '}${o.p} g P)`).join(' · ')||'none'}.</p>
+ <div class="foot">Sources: ${Object.values(EN.SOURCES).map(z=>`${e(z.n)} (${e(z.y)})`).join('; ')}.<br>Food values are estimates for typical home recipes. This plan is general nutrition information, not a medical prescription, and results vary between people. Check with a doctor or registered dietitian if you have a medical condition, are pregnant, or take medicines.</div>
+ </body></html>`}
+function printChart(){const html=printDoc(getChart());const f=document.createElement('iframe');f.setAttribute('aria-hidden','true');f.style.cssText='position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0';document.body.appendChild(f);
+ const d=f.contentDocument;d.open();d.write(html);d.close();
+ setTimeout(()=>{try{f.contentWindow.focus();f.contentWindow.print();toast('Choose “Save as PDF” to download')}catch(e){downloadChart()}setTimeout(()=>f.remove(),120000)},350)}
+async function downloadChart(){const html=printDoc(getChart()),fn=`FitMentor-diet-chart-${today()}.html`;
+ try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));a.download=fn;document.body.appendChild(a);a.click();a.remove();toast('File downloaded — open it and Print → Save as PDF')}catch(e){toast('Download didn’t work')}}
+
+/*CHARTUI-END*/
 
 // ================= PROTEIN (reused) =================
 let pAcc=S.get('pAcc',[]),pRej=S.get('pRej',[]),pShow=[];
-const pPool=()=>PROT.filter(x=>dietOK(x.d)&&!P.allergies.some(a=>(a.startsWith('Milk')&&['paneer','hung','dahi','milk','whey'].includes(x.id))||(a.startsWith('Peanut')&&x.id==='peanut')||(a.startsWith('Soya')&&['soya','tofu'].includes(x.id))||(a.startsWith('Egg')&&['egg','white','omelette','bhurji'].includes(x.id))||(a.startsWith('Dry')&&x.id==='badam')||(a.startsWith('Seafood')&&['fish','prawn'].includes(x.id))));
+const pPool=()=>PROT.filter(x=>dietOK(x.d)&&!(diet==='vg'&&['paneer','hung','dahi','milk','whey'].includes(x.id))&&!P.allergies.some(a=>(a.startsWith('Milk')&&['paneer','hung','dahi','milk','whey'].includes(x.id))||(a.startsWith('Peanut')&&x.id==='peanut')||(a.startsWith('Soya')&&['soya','tofu'].includes(x.id))||(a.startsWith('Egg')&&['egg','white','omelette','bhurji'].includes(x.id))||(a.startsWith('Dry')&&x.id==='badam')||(a.startsWith('Seafood')&&['fish','prawn'].includes(x.id))));
 function nextProt(){const used=new Set([...pAcc,...pRej,...pShow]);return pPool().find(x=>!used.has(x.id))}
 function fillShow(){pShow=pShow.filter(id=>pPool().some(x=>x.id===id)&&!pAcc.includes(id)&&!pRej.includes(id));while(pShow.length<3){const n=nextProt();if(!n)break;pShow.push(n.id)}}
 const PB=id=>PROT.find(x=>x.id===id);
