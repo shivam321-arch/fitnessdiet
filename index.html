@@ -302,8 +302,10 @@ details summary{cursor:pointer}
    <form id="authForm" class="hide" novalidate>
     <div id="nameRow"><label for="aName">Your name</label><input id="aName" autocomplete="given-name" maxlength="60"></div>
     <div style="margin-top:10px"><label for="aEmail">Email</label><input id="aEmail" type="email" autocomplete="email" inputmode="email" required></div>
-    <div style="margin-top:10px"><label for="aPw">Password</label><input id="aPw" type="password" autocomplete="new-password" minlength="8" required><div class="tiny muted" id="pwHint">At least 8 characters.</div></div>
+    <div style="margin-top:10px" id="pwRow"><label for="aPw" id="pwLab">Password</label><input id="aPw" type="password" autocomplete="new-password" minlength="8" required><div class="tiny muted" id="pwHint">At least 8 characters.</div></div>
+    <div style="margin-top:10px" class="hide" id="otpRow"><label for="aOtp" id="otpLab">6-digit code</label><input id="aOtp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" style="letter-spacing:6px;font-size:20px;text-align:center"><div class="tiny muted" style="display:flex;justify-content:space-between;gap:8px;margin-top:4px"><span id="otpNote">Check your inbox (and spam folder).</span><button type="button" class="back tiny" id="otpResend" style="padding:0">Resend code</button></div></div>
     <div class="err" id="authErr" role="alert"></div>
+    <div class="tiny" style="text-align:right;margin-top:4px" id="forgotRow"><button type="button" class="back tiny" id="forgotBtn" style="padding:0">Forgot password?</button></div>
     <button class="btn glow block" id="authGo" type="submit" style="margin-top:6px">Create account</button>
    </form>
    <div id="authOffline" class="alert w hide" style="margin-top:14px"><span id="authOfflineTxt"></span><div class="row" style="margin-top:10px"><button class="btn sm" id="authRetry" type="button">Try again</button><button class="btn ghost sm" id="authSkip" type="button">Continue without account</button></div></div>
@@ -1631,33 +1633,54 @@ function collectData(){const d={};SYNC_KEYS.forEach(k=>{try{const v=localStorage
 function applyData(d){SYNC_KEYS.forEach(k=>{if(d&&d[k]!==undefined){try{localStorage.setItem('fm_'+k,JSON.stringify(d[k]))}catch(e){}}})}
 let pushT=null;
 function schedulePush(){if(!TOKEN_())return;clearTimeout(pushT);pushT=setTimeout(pushNow,1500)}
-async function pushNow(){if(!TOKEN_())return;try{const r=await api('/api/data',{method:'PUT',body:JSON.stringify({data:collectData()})});S._raw('syncAt',r.updated)}catch(e){if(e.status===401)signOut(true)}}
+async function pushNow(){if(!TOKEN_())return false;pushT=null;try{const r=await api('/api/data',{method:'PUT',body:JSON.stringify({data:collectData()})});S._raw('syncAt',r.updated);return true}catch(e){if(e.status===401)signOut(true);return false}}
 // hook every save
 {const orig=S.set.bind(S);S._raw=(k,v)=>orig(k,v);S.set=(k,v)=>{orig(k,v);if(SYNC_KEYS.includes(k)){orig('changedAt',Date.now());schedulePush()}}}
-addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&pushT){clearTimeout(pushT);pushNow()}});
-let authMode='up',gisLoaded=false;
-function setAuthMode(m){authMode=m;document.querySelectorAll('#authTabs button').forEach(b=>b.classList.toggle('on',b.dataset.a===m));$('authTitle').textContent=m==='up'?'Create your account':'Welcome back';$('nameRow').classList.toggle('hide',m!=='up');$('authGo').textContent=m==='up'?'Create account':'Sign in';$('aPw').autocomplete=m==='up'?'new-password':'current-password';$('pwHint').classList.toggle('hide',m!=='up');$('authErr').textContent=''}
+// tab band / app background ho to turant save (keepalive = page band hone par bhi request poori hoti hai)
+function flushOnHide(){if(!pushT||!TOKEN_())return;clearTimeout(pushT);pushT=null;const body=JSON.stringify({data:collectData()});
+ if(body.length<60000){try{fetch(AI_SERVER+'/api/data',{method:'PUT',keepalive:true,headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN_()},body});return}catch(e){}}pushNow()}
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushOnHide()});
+addEventListener('pagehide',flushOnHide);
+let authMode='up',gisLoaded=false,otpOn=false,otpStep=false,otpWait=0,otpTimer=null;
+function setAuthMode(m){authMode=m;otpStep=false;document.querySelectorAll('#authTabs button').forEach(b=>b.classList.toggle('on',b.dataset.a===m));
+ $('authTitle').textContent=m==='up'?'Create your account':m==='in'?'Welcome back':'Reset your password';
+ $('authTabs').classList.toggle('hide',m==='reset');$('nameRow').classList.toggle('hide',m!=='up');$('forgotRow').classList.toggle('hide',m!=='in'||!otpOn);
+ $('aPw').autocomplete=m==='in'?'current-password':'new-password';$('pwLab').textContent=m==='reset'?'New password':'Password';$('pwHint').classList.toggle('hide',m==='in');
+ $('pwRow').classList.toggle('hide',m==='reset');$('aEmail').disabled=false;$('aOtp').value='';$('authErr').textContent='';authBtn();showOtp(false)}
+function authBtn(){$('authGo').textContent=authMode==='in'?'Sign in':otpOn&&!otpStep?(authMode==='up'?'Send code to my email':'Send reset code'):authMode==='up'?'Verify & create account':'Set new password'}
+function showOtp(on){$('otpRow').classList.toggle('hide',!on);if(authMode==='reset')$('pwRow').classList.toggle('hide',!on)}
+function otpCountdown(){clearInterval(otpTimer);otpWait=45;const b=$('otpResend');const t=()=>{b.disabled=otpWait>0;b.textContent=otpWait>0?'Resend in '+otpWait+'s':'Resend code';if(otpWait--<=0)clearInterval(otpTimer)};t();otpTimer=setInterval(t,1000)}
+async function sendCode(email){await api('/api/auth/otp',{method:'POST',body:JSON.stringify({email,purpose:authMode==='reset'?'reset':'signup'})});
+ otpStep=true;showOtp(true);$('otpLab').textContent='6-digit code sent to '+email;$('aEmail').disabled=true;authBtn();otpCountdown();setTimeout(()=>$('aOtp').focus(),50)}
 document.querySelectorAll('#authTabs button').forEach(b=>b.onclick=()=>setAuthMode(b.dataset.a));
-$('authBack').onclick=()=>go('hero');
+$('forgotBtn').onclick=()=>setAuthMode('reset');
+$('otpResend').onclick=async()=>{$('authErr').textContent='';try{await sendCode($('aEmail').value.trim().toLowerCase());toast('New code sent')}catch(e){$('authErr').textContent=e.message}};
+$('authBack').onclick=()=>{if(authMode==='reset'||otpStep)setAuthMode(authMode==='reset'?'in':authMode);else go('hero')};
 $('authRetry').onclick=()=>renderAuth();
 $('authSkip').onclick=()=>{startOnb()};
 async function renderAuth(){setAuthMode(authMode);$('authConn').classList.remove('hide');$('authConn').textContent='Connecting to FitMentor… (the first time can take up to a minute)';$('authOffline').classList.add('hide');$('authForm').classList.add('hide');$('gWrap').classList.add('hide');
  let cfg=null;try{cfg=await api('/api/config',{},60000)}catch(e){}
  $('authConn').classList.add('hide');
  if(!cfg||!cfg.login){$('authOffline').classList.remove('hide');$('authOfflineTxt').textContent=cfg?'Accounts are being set up and will open soon. For now you can start without an account — your data stays on this device.':'Can’t reach the FitMentor server right now. You can try again, or start without an account (your data will stay only on this device).';return}
+ otpOn=!!cfg.email_otp;setAuthMode(authMode);
  $('authForm').classList.remove('hide');
  if(cfg.google_client_id)loadGoogle(cfg.google_client_id);
 }
 function loadGoogle(cid){const init=()=>{try{google.accounts.id.initialize({client_id:cid,callback:async r=>{$('authErr').textContent='';try{onAuthed(await api('/api/auth/google',{method:'POST',body:JSON.stringify({credential:r.credential})}))}catch(e){$('authErr').textContent=e.message||'Google sign-in failed.'}}});google.accounts.id.renderButton($('gBtn'),{theme:document.documentElement.dataset.theme==='light'?'outline':'filled_black',size:'large',shape:'pill',text:'continue_with',width:300});$('gWrap').classList.remove('hide')}catch(e){}};
  if(gisLoaded&&window.google){init();return}const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.onload=()=>{gisLoaded=true;init()};document.head.appendChild(sc)}
-$('authForm').onsubmit=async e=>{e.preventDefault();const email=$('aEmail').value.trim(),pw=$('aPw').value,name=$('aName').value.trim();
+$('authForm').onsubmit=async e=>{e.preventDefault();const email=$('aEmail').value.trim().toLowerCase(),pw=$('aPw').value,name=$('aName').value.trim(),otp=$('aOtp').value.replace(/\D/g,'');
  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$('authErr').textContent='Please enter a valid email.';return}
- if(authMode==='up'&&pw.length<8){$('authErr').textContent='Password must be at least 8 characters.';return}
- if(!pw){$('authErr').textContent='Enter your password.';return}
+ const needPw=authMode==='in'||authMode==='up'||otpStep;
+ if(needPw&&authMode!=='in'&&pw.length<8){$('authErr').textContent='Password must be at least 8 characters.';return}
+ if(needPw&&!pw){$('authErr').textContent='Enter your password.';return}
+ if(otpStep&&otp.length!==6){$('authErr').textContent='Enter the 6-digit code from your email.';return}
  $('authErr').textContent='';$('authGo').disabled=true;$('authGo').textContent='Please wait…';
- try{onAuthed(await api(authMode==='up'?'/api/auth/register':'/api/auth/login',{method:'POST',body:JSON.stringify({email,password:pw,name})}))}
- catch(err){$('authErr').textContent=err.name==='AbortError'?'Server is taking too long. Try again.':err.message;if(err.status===409)setAuthMode('in')}
- finally{$('authGo').disabled=false;$('authGo').textContent=authMode==='up'?'Create account':'Sign in'}};
+ try{
+  if(authMode!=='in'&&otpOn&&!otpStep){await sendCode(email);return}
+  if(authMode==='reset'){onAuthed(await api('/api/auth/reset',{method:'POST',body:JSON.stringify({email,otp,password:pw})}));toast('Password changed');return}
+  onAuthed(await api(authMode==='up'?'/api/auth/register':'/api/auth/login',{method:'POST',body:JSON.stringify({email,password:pw,name,otp})}))}
+ catch(err){$('authErr').textContent=err.name==='AbortError'?'Server is taking too long. Try again.':err.message;if(err.status===409){setAuthMode('in');$('aEmail').value=email;$('authErr').textContent=err.message}}
+ finally{$('authGo').disabled=false;authBtn()}};
 async function onAuthed(r){S._raw('token',r.token);S._raw('acct',{email:r.user.email,name:r.user.name,google:r.user.google});
  const sd=r.user.data||{};
  if(sd.profile2){applyData(sd);S._raw('syncAt',r.user.updated);S._raw('changedAt',r.user.updated);location.reload();return}
@@ -1669,7 +1692,11 @@ async function bootSync(){if(!TOKEN_())return;try{const r=await api('/api/me',{}
   if(changed>sync)pushNow()}catch(e){if(e.status===401)signOut(true)}}
 function signOut(expired){['token','acct','syncAt','changedAt'].forEach(S.del);SYNC_KEYS.forEach(S.del);['profile','preName'].forEach(S.del);if(expired)try{sessionStorage.setItem('fm_expired','1')}catch(e){}location.reload()}
 function renderAcct(){const a=S.get('acct',null);$('acctCard').innerHTML=TOKEN_()&&a?`<h2>Account</h2><div class="small">Signed in as <b>${esc(a.email||'')}</b>${a.google?' (Google)':''}</div><div class="small muted" style="margin-top:4px">Your data is saved to your account and syncs across devices.</div><div class="row" style="margin-top:12px"><button class="btn ghost" id="signOutBtn">Sign out</button></div>`:`<h2>Account</h2><div class="small muted">You are not signed in, so your data lives only in this browser.</div><button class="btn sec" style="margin-top:10px" id="signInBtn">Create account / sign in</button>`;
- const so=$('signOutBtn');if(so)so.onclick=async()=>{if(pushT){clearTimeout(pushT);await pushNow()}signOut()};const si=$('signInBtn');if(si)si.onclick=()=>go('auth')}
+ const so=$('signOutBtn');if(so)so.onclick=async()=>{so.disabled=true;so.textContent='Saving…';clearTimeout(pushT);
+  // pehle sab kuch account me save, tabhi sign out (warna is phone ka naya data kho jaata)
+  const ok=await pushNow();
+  if(ok){signOut();return}
+  so.disabled=false;so.textContent='Sign out';openSheet(`<h2>Not saved yet</h2><div class="small muted">Your latest changes could not reach your account (check your internet). If you sign out now, they will be lost from this phone.</div><div class="row" style="margin-top:14px"><button class="btn" onclick="closeSheet()">Stay signed in</button><button class="btn danger" id="soAnyway">Sign out anyway</button></div>`);$('soAnyway').onclick=()=>signOut()};const si=$('signInBtn');if(si)si.onclick=()=>go('auth')}
 
 // ================= LANDING HERO (Three.js, lazy) =================
 let H3=null,heroIO=null;
