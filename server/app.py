@@ -38,6 +38,12 @@ _MPW = os.environ.get("MONGODB_PASSWORD", "").strip()
 if _MPW and "<db_password>" in MONGODB_URI:
     from urllib.parse import quote_plus
     MONGODB_URI = MONGODB_URI.replace("<db_password>", quote_plus(_MPW))
+# (setup check: sirf lambai/format log karta hai, password nahi)
+try:
+    _m = re.match(r"^mongodb\+srv://([^:]+):(.*)@([^/?]+)", MONGODB_URI)
+    print("DB config check:", {"has_uri": bool(MONGODB_URI), "user": _m.group(1) if _m else None, "pw_len": len(_m.group(2)) if _m else None, "placeholder_left": "<db_password>" in MONGODB_URI, "host": _m.group(3) if _m else None, "separate_pw_len": len(_MPW), "separate_pw_special": bool(re.search(r"[^A-Za-z0-9]", _MPW))}, flush=True)
+except Exception as _e:
+    print("DB config check failed", _e, flush=True)
 SECRET_KEY = os.environ.get("SECRET_KEY", "").strip()          # lamba random text, sirf Render me
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
 TOKEN_DAYS = 60
