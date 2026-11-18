@@ -33,6 +33,11 @@ ALLOWED_ORIGINS = [
 
 # login settings (Render Environment Variables)
 MONGODB_URI = os.environ.get("MONGODB_URI", "").strip()
+# password alag variable me bhi de sakte ho (link me <db_password> rehne do)
+_MPW = os.environ.get("MONGODB_PASSWORD", "").strip()
+if _MPW and "<db_password>" in MONGODB_URI:
+    from urllib.parse import quote_plus
+    MONGODB_URI = MONGODB_URI.replace("<db_password>", quote_plus(_MPW))
 SECRET_KEY = os.environ.get("SECRET_KEY", "").strip()          # lamba random text, sirf Render me
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
 TOKEN_DAYS = 60
