@@ -375,6 +375,39 @@ body.landing{overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.feat .card{opacity:1;transform:none}}
 
 .lp-bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;background:rgba(7,10,14,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06)}.lp-bar .logo h1{font-size:18px}.lp-bar-r{display:flex;gap:8px}.btn.sm{padding:8px 14px;font-size:13px;min-height:0;width:auto}
+.ln-wrap{max-width:860px;margin:0 auto;padding:18px 16px 40px}
+.ln-head h2{font-family:var(--disp);font-size:clamp(26px,5vw,40px);line-height:1.08;letter-spacing:-.02em;margin:6px 0 16px}
+.ln-tabs{position:sticky;top:62px;z-index:20;display:flex;gap:6px;padding:5px;border-radius:999px;background:var(--card);border:1px solid var(--line);margin-bottom:18px}
+.ln-tabs button{flex:1;border:0;background:none;color:var(--mut);font:inherit;font-weight:600;padding:10px 6px;border-radius:999px;cursor:pointer}
+.ln-tabs button.on{background:linear-gradient(135deg,var(--pri),var(--lime));color:#06110F}
+.ln-intro{color:var(--mut);margin:0 0 14px}
+.ln-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ln-card{display:flex;flex-direction:column;gap:8px;text-align:left;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;cursor:pointer;transition:transform .15s,border-color .15s}
+.ln-card:hover{transform:translateY(-2px);border-color:var(--pri)}
+.ln-card b{font-size:17px;line-height:1.25}
+.ln-tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--pri);font-weight:700}
+.ln-read{margin-top:auto;color:var(--lime);font-weight:600;font-size:14px}
+.ln-art{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 18px}
+.ln-art h2{font-family:var(--disp);font-size:clamp(24px,4.6vw,34px);line-height:1.12;margin:8px 0 10px}
+.ln-art h3{margin:22px 0 6px;font-size:18px}
+.ln-art p,.ln-art li{line-height:1.65;color:var(--ink)}
+.ln-art ul{padding-left:20px;margin:6px 0}
+.ln-lead{font-size:17px;color:var(--mut)!important;border-left:3px solid var(--pri);padding-left:12px}
+.ln-src{margin-top:20px;font-size:14px}.ln-src summary{cursor:pointer;font-weight:600}.ln-src a{color:var(--pri)}
+.ln-next{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:1px dashed var(--line);border-radius:16px;padding:14px;margin-top:14px;cursor:pointer}
+.ln-cta{display:flex;flex-direction:column;gap:6px;align-items:flex-start;margin-top:20px;padding:20px;border-radius:20px;background:radial-gradient(120% 140% at 0 0,rgba(46,230,240,.16),transparent 60%),var(--card);border:1px solid var(--line)}
+.ln-cta b{font-size:19px}.ln-cta span{color:var(--mut)}.ln-cta .btn{margin-top:8px;width:auto}
+.ln-vid{display:flex;flex-direction:column;gap:6px}
+.ln-frame{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#0f2a2e,#1c2a14);border:1px solid var(--line);display:grid;place-items:center}
+.ln-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ln-play{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);font-size:20px}
+.ln-soon{position:absolute;top:10px;left:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;background:rgba(0,0,0,.5);padding:4px 8px;border-radius:999px}
+.ln-note{padding:14px 16px;border-radius:16px;background:rgba(196,242,90,.08);border:1px solid rgba(196,242,90,.25);margin-bottom:14px;line-height:1.55}
+.ln-story{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.ln-story .ln-tag{color:var(--mut)}
+.ln-row{display:flex;flex-direction:column;gap:2px;font-size:14px;line-height:1.5}.ln-row i{font-style:normal;font-size:12px;color:var(--mut);font-weight:600}
+.ln-row.ok i{color:var(--lime)}
+.ln-share{display:flex;flex-direction:column;gap:6px;align-items:flex-start;margin-top:14px;padding:16px;border-radius:18px;border:1px dashed var(--line)}.ln-share .btn{width:auto;margin-top:6px}
 </style>
 <script>try{const t=localStorage.getItem('fm_theme');if(t)document.documentElement.dataset.theme=JSON.parse(t)}catch(e){}</script>
 </head>
@@ -463,6 +496,7 @@ body.landing{overflow-x:hidden}
      <div class="rv"><span>2</span><div><b>The plan wasn’t made for you.</b><p>A chart copied from the internet ignores your height, weight, routine, health and the food your family actually cooks.</p></div></div>
      <div class="rv"><span>3</span><div><b>Nobody adjusted it.</b><p>Weight swings 1–2 kg a day with water and salt. Without someone reading the weekly trend, you quit at the first “stuck” week.</p></div></div>
     </div>
+    <button class="btn ghost" style="margin-top:18px;width:auto" onclick="openLearn('articles')">Read the full articles →</button>
    </div>
    <figure class="lp-graph rv" aria-label="Illustration: crash diet weight drops fast then comes back; a steady plan goes down slowly and stays down">
     <svg viewBox="0 0 360 230" role="img">
@@ -771,6 +805,15 @@ body.landing{overflow-x:hidden}
 </section>
 
 <!-- ============ MORE ============ -->
+<section class="view" id="v-learn" aria-label="Why diets fail">
+ <div class="lp-bar"><button class="logo" type="button" id="learnLogo" aria-label="FitMentor home"><i><b>F</b></i><div><h1>FitMentor</h1></div></button><div class="lp-bar-r" id="learnBarR"></div></div>
+ <div class="ln-wrap">
+  <div class="ln-head"><div class="lp-eyebrow">Learn</div><h2>Why diets failed you — and what works</h2></div>
+  <div class="ln-tabs" id="learnTabs" role="tablist"><button data-t="articles">Articles</button><button data-t="videos">Videos</button><button data-t="stories">Stories</button></div>
+  <div id="learnBody"></div>
+ </div>
+</section>
+
 <section class="view" id="v-more">
   <div class="card flat">
     <div class="morelist">
@@ -780,6 +823,7 @@ body.landing{overflow-x:hidden}
       <button onclick="go('protein')"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c4 0 7 6.5 7 11a7 7 0 0 1-14 0c0-4.5 3-11 7-11z"/></svg></span><b>Protein options</b><span class="small muted">What you can have</span></button>
       <button onclick="go('water')"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg></span><b>Water & steps</b><span class="small muted">Weekly plan</span></button>
       <button onclick="go('guide')"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></span><b>My full plan</b><span class="small muted">Diet + workout</span></button>
+      <button onclick="openLearn('articles')"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg></span><b>Learn</b><span class="small muted">Articles, videos, stories</span></button>
       <button onclick="go('settings')"><span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span><b>Profile & settings</b><span class="small muted">Theme, edit, export, reset</span></button>
     </div>
   </div>
@@ -1756,11 +1800,11 @@ const SAFETY_RULES=`Rules: You are FitMentor, a friendly diet and gym mentor for
 // ================= navigation =================
 const MAIN=['home','mentor','log','progress','more'];
 function go(v){
- if(!P&&v!=='onb'&&v!=='hero'&&v!=='auth'){startOnb();return}
- const land=v==='hero'||v==='auth';document.body.classList.toggle('landing',land);document.querySelector('.top').classList.toggle('hide',land);
+ if(!P&&v!=='onb'&&v!=='hero'&&v!=='auth'&&v!=='learn'){startOnb();return}
+ const land=v==='hero'||v==='auth'||v==='learn';document.body.classList.toggle('landing',land);document.querySelector('.top').classList.toggle('hide',land);
  document.querySelector('nav.bottom').classList.toggle('hide',land);if(!land)heroStop();document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));$('v-'+v).classList.add('on');
  const nv=MAIN.includes(v)?v:'more';document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.v===nv));
- ({hero:renderHero,auth:renderAuth,home:renderHome,log:renderLog,mentor:renderMentor,progress:renderProgress,protein:renderProtein,ex:renderEx,water:renderWater,guide:renderGuide,settings:renderSettings,chart:renderChart}[v]||(()=>{}))();
+ ({hero:renderHero,learn:renderLearn,auth:renderAuth,home:renderHome,log:renderLog,mentor:renderMentor,progress:renderProgress,protein:renderProtein,ex:renderEx,water:renderWater,guide:renderGuide,settings:renderSettings,chart:renderChart}[v]||(()=>{}))();
  collectFigs();window.scrollTo({top:0,behavior:'smooth'});
 }
 document.querySelectorAll('nav.bottom button').forEach(b=>b.onclick=()=>go(b.dataset.v));
@@ -2120,6 +2164,129 @@ const NM={
 };
 const bi=n=>NM[n]||n;
 FOODS.forEach(f=>{f.n=bi(f.n)});PROT.forEach(x=>{x.n=bi(x.n)});
+/*LEARN-START*/
+// ================= LEARN: articles, videos, stories =================
+const LEARN_SRC={
+ LIU:['Liu et al., NEJM 2022 — calorie restriction with or without time-restricted eating','https://pubmed.ncbi.nlm.nih.gov/35443107/'],
+ CAVA:['Cava et al., Advances in Nutrition 2017 — preserving muscle during weight loss','https://pmc.ncbi.nlm.nih.gov/articles/PMC5421125'],
+ MORTON:['Morton et al., Br J Sports Med 2018 — protein and strength training','https://pubmed.ncbi.nlm.nih.gov/28698222/'],
+ ICMR:['ICMR-NIN Dietary Guidelines for Indians, 2024','https://www.nin.res.in/dietaryguidelines/pdfjs/locale/DGI24thJune2024fin.pdf'],
+ EMECH:['Martin et al., Am J Clin Nutr 2019 — E-MECHANIC exercise trial','https://pubmed.ncbi.nlm.nih.gov/31172175/'],
+ COMP:['King et al., Med Sci Sports Exerc 2013 — compensation after exercise','https://pubmed.ncbi.nlm.nih.gov/23470300/'],
+ FOTH:['Fothergill et al., Obesity 2016 — metabolism 6 years after extreme weight loss','https://pmc.ncbi.nlm.nih.gov/articles/PMC4989512/'],
+ MSJ:['Mifflin-St Jeor equation, 1990 (validated by Frankenfield 2005)','https://pubmed.ncbi.nlm.nih.gov/15883556/'],
+ ABMI:['WHO expert consultation — BMI cut-offs for Asian populations','https://pmc.ncbi.nlm.nih.gov/articles/5560889/'],
+ NICE:['NICE NG246 (2025) — overweight and obesity management','https://www.nice.org.uk/guidance/NG246/chapter/physical-activity-and-diet']
+};
+const ARTICLES=[
+ {id:'fasting',tag:'Fasting',min:3,t:'I tried fasting. Why didn’t it work?',
+  sum:'Fasting is only a timing trick. If the total food in the day doesn’t drop, the weight doesn’t either.',
+  body:[
+   ['p','Intermittent fasting, 16:8, “only one meal a day” — they all promise that the clock will burn your fat. The clock doesn’t. What matters is how much you eat across the whole day.'],
+   ['h','What the research found'],
+   ['p','In a 12-month trial in China, 139 adults with obesity were all given the same calorie target. Half also had to eat only between 8 am and 4 pm. At the end, both groups had lost a similar amount of weight — the eating window added no clear extra benefit.'],
+   ['h','Why it often fails at home'],
+   ['ul',['After a long gap, hunger is high and the next meal becomes huge — pakode, sweets, second helpings.','Skipping breakfast often means skipping the protein too, so you lose strength.','Tea with biscuits “doesn’t count” — but it does.']],
+   ['h','What works instead'],
+   ['p','Eat at times that suit your day, in measured portions, with protein in every meal. If fasting helps you eat less, fine — but it is a tool, not magic. Your chart gives you the right amount per meal so the day adds up.']],
+  src:['LIU','NICE']},
+ {id:'weak',tag:'Eating less',min:3,t:'I ate less — so why do I feel weak?',
+  sum:'Cutting food without enough protein makes the body burn muscle too. Less muscle = weakness and a slower body.',
+  body:[
+   ['p','When you suddenly cut down to a few rotis and tea, the body doesn’t take energy only from fat. It also breaks down muscle. That is why many people feel tired, get hair fall, and look “thin but soft”.'],
+   ['h','What the research says'],
+   ['p','A large review of weight-loss studies found that diet alone always removes some muscle along with fat. Eating enough protein and doing some strength exercise were the two things that protected muscle best.'],
+   ['h','How much protein is enough?'],
+   ['p','Most Indian diets give far less than needed when you are cutting food. During fat loss, about 1.2–1.6 g of protein per kg of body weight a day is a common target — for a 70 kg person, roughly 85–110 g. Dal alone won’t reach it; paneer, curd, chana, soya, eggs or chicken help.'],
+   ['h','What your chart does'],
+   ['p','It fixes your protein first, then fits the calories around it — so you lose fat, not strength.']],
+  src:['CAVA','MORTON','ICMR']},
+ {id:'gym',tag:'Running & gym',min:3,t:'I ran every day. Why didn’t the weight drop?',
+  sum:'Exercise burns less than you think, and the body quietly makes up for it with more hunger and less movement.',
+  body:[
+   ['p','A 30-minute run burns roughly 250–350 kcal — about one samosa and a cup of chai. Many people also feel hungrier after exercise and eat a bit more without noticing.'],
+   ['h','What the research found'],
+   ['p','In a 6-month US trial, people who did supervised exercise lost much less weight than their calorie burn predicted. The body “compensated” — through more appetite and resting more for the rest of the day. Results also varied a lot from person to person.'],
+   ['h','So is exercise useless?'],
+   ['p','No. Exercise is excellent for heart, sugar, mood, sleep and — very important — keeping muscle while you lose fat. But weight loss comes mainly from food. The winning combination is: the right diet for the scale, exercise for the body.'],
+   ['h','What your plan does'],
+   ['p','Your chart sets the food. The workout studio gives you simple strength moves you can do at home or in the gym.']],
+  src:['EMECH','COMP','CAVA']},
+ {id:'regain',tag:'Weight came back',min:3,t:'I lost weight — then it all came back.',
+  sum:'Crash diets push the body into “save energy” mode. When the diet ends, the weight returns fast.',
+  body:[
+   ['p','You lost 8 kg in a month on a strict diet. Then a wedding, a holiday, or just tiredness — and in three months it was back, sometimes more.'],
+   ['h','What happens inside the body'],
+   ['p','When weight falls very fast, the body slows down to protect itself: it burns fewer calories at rest and hunger hormones rise. A well-known study followed contestants of a TV weight-loss show who lost huge amounts very quickly. Six years later most had regained much of it, and their resting calorie burn was still lower than expected.'],
+   ['h','How to avoid it'],
+   ['ul',['Lose slowly — about 0.5–1% of your body weight per week.','Keep protein high and do strength exercise to keep muscle.','Use food you can eat for life, not a 30-day special menu.','Adjust the plan step by step when progress stalls, instead of starving more.']],
+   ['p','That is exactly how FitMentor sets your calories and reviews them every week.']],
+  src:['FOTH','NICE','CAVA']},
+ {id:'scale',tag:'The scale',min:2,t:'The scale went up overnight. Did I fail?',
+  sum:'Body weight moves 1–2 kg a day because of water, salt and food in the stomach. Only the weekly trend matters.',
+  body:[
+   ['p','You ate well all week, then one morning the scale shows +1 kg. Most people panic and either starve or give up. Both are mistakes.'],
+   ['h','Why weight jumps'],
+   ['ul',['A salty dinner makes the body hold extra water.','More carbs store water in the muscles.','Periods, poor sleep, constipation and a heavy workout all add temporary weight.']],
+   ['p','None of this is fat. Gaining 1 kg of real fat needs roughly 7,000 extra calories — very hard to do in a day.'],
+   ['h','How to read your progress'],
+   ['p','Weigh yourself in the morning, after the toilet, before food — 2–3 times a week. FitMentor compares the average of each week with the week before, and only changes your plan when the trend says so.']],
+  src:['NICE']},
+ {id:'chart',tag:'Diet charts',min:3,t:'Why an internet diet chart didn’t fit you',
+  sum:'A copied chart doesn’t know your height, weight, age, health, routine or the food your family cooks.',
+  body:[
+   ['p','The same 1,200-calorie chart is shared with a 50 kg college girl and a 95 kg man who works on his feet all day. For one it is too much, for the other it is starvation.'],
+   ['h','What should decide your numbers'],
+   ['ul',['Your height, weight, age and sex — used in a tested equation (Mifflin-St Jeor) to estimate your daily needs.','How active your day really is.','Health conditions like diabetes, thyroid, PCOS, BP or kidney problems.','For Indians, health risk starts at a lower BMI than for Western populations, so targets must be set with that in mind.']],
+   ['h','And the food itself'],
+   ['p','A plan you can follow is one with your roti, rice, dal, sabzi and curd — in the right portions — not oats and quinoa you will stop buying in two weeks. The ICMR “My Plate” guidance is built around exactly this kind of everyday Indian food.'],
+   ['p','Your FitMentor chart is calculated for you, explains every number, and changes as your body changes.']],
+  src:['MSJ','ABMI','ICMR']}
+];
+// Videos: put a YouTube video id in "yt" to show it. Empty yt = "coming soon".
+const VIDEOS=[
+ {yt:'',t:'Why fasting didn’t burn your fat',d:'3 min'},
+ {yt:'',t:'How much protein do you really need? (Indian food)',d:'4 min'},
+ {yt:'',t:'Read your weight trend, not the daily scale',d:'2 min'},
+ {yt:'',t:'10-minute home strength routine for beginners',d:'10 min'}
+];
+// Stories: real stories only, added with the person's permission. Until then, clearly-labelled example situations.
+const STORIES=[];
+const EXAMPLES=[
+ {who:'Office worker, 34',tried:'Skipped breakfast and dinner for 3 weeks, only tea and lunch.',hap:'Lost 3 kg, felt dizzy at work, then binged on weekends and gained it back.',fix:'Three real meals with protein in each, portions set for her body, and a slower 0.5 kg/week goal.'},
+ {who:'Gym-goer, 27',tried:'Gym 6 days a week, no change in diet.',hap:'Strength went up but weight stayed the same for 2 months; got frustrated.',fix:'A small daily calorie gap from food, higher protein, and keeping the gym for muscle.'},
+ {who:'Home-maker, 45, thyroid',tried:'Copied a 1,000-calorie chart from WhatsApp.',hap:'Constant hunger, hair fall, gave up in 10 days.',fix:'A chart built on her family’s dal-roti-sabzi with enough protein, checking with her doctor about her thyroid.'},
+ {who:'Student, 22',tried:'Ran 5 km every morning and cut out rice.',hap:'Lost water weight in week one, then stuck — and always hungry.',fix:'Rice back in measured portions, weekly trend tracking instead of daily weighing.'}
+];
+let learnTab='articles',learnOpen=null;
+function openLearn(tab,id){learnTab=tab||'articles';learnOpen=id||null;go('learn')}
+function renderLearn(){
+ const b=$('learnBody');if(!b)return;
+ const br=$('learnBarR');if(br){br.innerHTML=P?'<button class="btn glow sm" id="lnDash">My dashboard →</button>':'<button class="btn glow sm" id="lnStart">Get my chart</button>';const d=$('lnDash');if(d)d.onclick=()=>go('home');const s=$('lnStart');if(s)s.onclick=()=>{if(TOKEN_())startOnb();else go('auth')}}
+ $('learnLogo').onclick=()=>go('hero');
+ document.querySelectorAll('#learnTabs button').forEach(x=>{x.classList.toggle('on',x.dataset.t===learnTab);x.onclick=()=>{learnTab=x.dataset.t;learnOpen=null;renderLearn();window.scrollTo({top:0})}});
+ const cta=`<div class="ln-cta"><b>Stop guessing. Get a plan made for your body.</b><span>Free 7-day Indian diet chart with exact portions and protein.</span><button class="btn glow" id="lnCta">${P?'Open my diet chart':'Get my free diet chart'} →</button></div>`;
+ const wire=()=>{const c=$('lnCta');if(c)c.onclick=()=>{if(P)go('chart');else if(TOKEN_())startOnb();else go('auth')}};
+ if(learnTab==='articles'&&learnOpen){
+  const a=ARTICLES.find(x=>x.id===learnOpen);if(!a){learnOpen=null;return renderLearn()}
+  const body=a.body.map(([k,v])=>k==='h'?`<h3>${v}</h3>`:k==='ul'?`<ul>${v.map(li=>`<li>${li}</li>`).join('')}</ul>`:`<p>${v}</p>`).join('');
+  const src=a.src.map(s=>`<li><a href="${LEARN_SRC[s][1]}" target="_blank" rel="noopener">${LEARN_SRC[s][0]}</a></li>`).join('');
+  const i=ARTICLES.indexOf(a),nx=ARTICLES[(i+1)%ARTICLES.length];
+  b.innerHTML=`<button class="back" id="lnBack">← All articles</button><article class="ln-art"><div class="ln-tag">${a.tag} · ${a.min} min read</div><h2>${a.t}</h2><p class="ln-lead">${a.sum}</p>${body}<details class="ln-src"><summary>Sources</summary><ul>${src}</ul></details><div class="tiny muted" style="margin-top:10px">General information, not medical advice. If you have a health condition, check with your doctor.</div></article>${cta}<button class="ln-next" id="lnNext"><span class="tiny muted">Next article</span><b>${nx.t}</b></button>`;
+  $('lnBack').onclick=()=>{learnOpen=null;renderLearn();window.scrollTo({top:0})};$('lnNext').onclick=()=>{learnOpen=nx.id;renderLearn();window.scrollTo({top:0})};wire();return}
+ if(learnTab==='articles'){
+  b.innerHTML=`<p class="ln-intro">Short, honest reads on why the usual tricks fail — and what actually works. Every article lists its sources.</p><div class="ln-grid">${ARTICLES.map(a=>`<button class="ln-card" data-id="${a.id}"><span class="ln-tag">${a.tag} · ${a.min} min</span><b>${a.t}</b><span class="small muted">${a.sum}</span><span class="ln-read">Read →</span></button>`).join('')}</div>${cta}`;
+  b.querySelectorAll('.ln-card').forEach(c=>c.onclick=()=>{learnOpen=c.dataset.id;renderLearn();window.scrollTo({top:0})});wire();return}
+ if(learnTab==='videos'){
+  const any=VIDEOS.some(v=>v.yt);
+  b.innerHTML=`<p class="ln-intro">${any?'Short videos — watch in a few minutes.':'Short explainer videos are being recorded. Here is what is coming.'}</p><div class="ln-grid">${VIDEOS.map(v=>v.yt?`<div class="ln-vid"><div class="ln-frame"><iframe src="https://www.youtube-nocookie.com/embed/${esc(v.yt)}" title="${esc(v.t)}" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe></div><b>${v.t}</b><span class="small muted">${v.d}</span></div>`:`<div class="ln-vid soon"><div class="ln-frame"><span class="ln-play">▶</span><span class="ln-soon">Coming soon</span></div><b>${v.t}</b><span class="small muted">${v.d}</span></div>`).join('')}</div>${any?'':'<p class="small muted" style="margin-top:14px">Meanwhile, the articles cover the same topics.</p>'}${cta}`;wire();return}
+ // stories
+ b.innerHTML=`${STORIES.length?`<div class="ln-grid">${STORIES.map(s=>`<div class="ln-story real"><b>${s.who}</b><p>${s.text}</p></div>`).join('')}</div>`:`<div class="ln-note"><b>Real stories coming soon.</b> We will only share real people’s stories, with their permission — no made-up reviews. Until then, here are common situations you might recognise.</div>`}
+ <div class="ln-grid">${EXAMPLES.map(e=>`<div class="ln-story"><span class="ln-tag">Example situation · not a real person</span><b>${e.who}</b><div class="ln-row"><i>Tried</i><span>${e.tried}</span></div><div class="ln-row"><i>What happened</i><span>${e.hap}</span></div><div class="ln-row ok"><i>What a plan changes</i><span>${e.fix}</span></div></div>`).join('')}</div>
+ <div class="ln-share"><b>Has FitMentor helped you?</b><span class="small muted">Share your story — with or without your name and photos. We’ll ask before publishing anything.</span><a class="btn ghost" href="mailto:shriganeshfirst@gmail.com?subject=My%20FitMentor%20story">Email your story</a></div>${cta}`;wire();
+}
+
+/*LEARN-END*/
 /*CHARTUI-START*/
 // ================= DIET CHART v2 (engine-driven; numbers come only from FMN) =================
 let chartDay=0;
@@ -2466,7 +2633,7 @@ function lpDemo(){const f=$('lpForm');if(!f||f.dataset.on)return;f.dataset.on=1;
 function renderHero(){
  const br=$('lpBarR');if(br){const inn=!!TOKEN_();br.innerHTML=(P?'<button class="btn glow sm" id="lpDash">My dashboard →</button>':'')+(inn?'':'<button class="btn ghost sm" id="lpIn">Log in</button>');const d=$('lpDash');if(d)d.onclick=()=>go('home');const i=$('lpIn');if(i)i.onclick=()=>go('auth');$('lpLogo').onclick=()=>window.scrollTo({top:0,behavior:'smooth'})}
  $('heroStart').onclick=$('heroStart2').onclick=()=>{if(TOKEN_())startOnb();else go('auth')};
- $('heroMore').onclick=()=>$('lpFamiliar').scrollIntoView({behavior:'smooth'});
+ $('heroMore').onclick=()=>openLearn('articles');
  lpDemo();
  $('lpStickyBtn').onclick=()=>$('heroStart').click();
  if('IntersectionObserver' in window&&!window.lpStickyIO){window.lpStickyIO=new IntersectionObserver(es=>es.forEach(e=>{const fin=document.querySelector('.lp-final');const finOn=fin&&fin.getBoundingClientRect().top<innerHeight;$('lpSticky').classList.toggle('on',!e.isIntersecting&&!finOn)}),{threshold:0});lpStickyIO.observe($('heroWrap'));addEventListener('scroll',()=>{const fin=document.querySelector('.lp-final');if(fin&&fin.getBoundingClientRect().top<innerHeight)$('lpSticky').classList.remove('on')},{passive:true})}
