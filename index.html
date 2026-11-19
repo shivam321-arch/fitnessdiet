@@ -600,6 +600,7 @@ body.lp-hero{background:var(--paper)!important;color:#1C211D}html:has(body.lp-he
 <section class="view" id="v-auth" aria-label="Sign in">
  <div class="auth">
   <div class="card auth-card">
+   <button class="auth-x" id="authTopBack" type="button" aria-label="Back to home">← Home</button>
    <div class="logo-lg"><i><b>F</b></i></div>
    <h2 id="authTitle" style="text-align:center;margin:10px 0 4px">Create your account</h2>
    <div class="small muted" style="text-align:center">Your plan, food log and workouts are saved to your account, so they work on any phone or laptop.</div>
@@ -2012,8 +2013,10 @@ const SAFETY_RULES=`Rules: You are FitMentor, a friendly diet and gym mentor for
 
 // ================= navigation =================
 const MAIN=['home','mentor','log','progress','more'];
-function go(v){
+function go(v,pop){
+ {const md=document.getElementById('modal');if(md)md.classList.remove('on')}
  if(!P&&v!=='onb'&&v!=='hero'&&v!=='auth'&&v!=='learn'){startOnb();return}
+ try{const cur=history.state&&history.state.v;if(!pop&&cur!==v){const url=location.pathname+location.search+(v==='hero'?'':'#'+v);if(cur)history.pushState({v},'',url);else history.replaceState({v},'',url)}}catch(e){}
  const land=v==='hero'||v==='auth'||v==='learn';document.body.classList.toggle('landing',land);document.body.classList.toggle('lp-hero',v==='hero');document.querySelector('.top').classList.toggle('hide',land);
  document.querySelector('nav.bottom').classList.toggle('hide',land);if(!land)heroStop();document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));$('v-'+v).classList.add('on');
  const nv=MAIN.includes(v)?v:'more';document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.v===nv));
@@ -2048,6 +2051,7 @@ function startOnb(edit){
  const old=S.get('profile',null);if(!edit&&old){Object.assign(ob,{sex:old.sex,age:old.age,h:old.h,w:old.w,act:String(old.act),tw:old.tw,tm:old.tm,place:old.place,lvl:old.lvl,cur:old.cur||'',diet:old.diet||ob.diet})}
  if(!edit&&!ob.name){ob.name=S.get('preName','')||''}
  obStep=0;document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));$('v-onb').classList.add('on');document.querySelector('nav.bottom').classList.add('hide');renderOnb();
+ try{if(!(history.state&&history.state.v==='onb'))history.pushState({v:'onb'},'',location.pathname+location.search+'#onb')}catch(e){}
 }
 function field(id,lab,type,val,attrs=''){return `<div><label for="o_${id}">${lab}</label><input id="o_${id}" type="${type}" value="${esc(val)}" ${attrs}><div class="err" id="e_${id}"></div></div>`}
 function sel(id,lab,opts,val){return `<div><label for="o_${id}">${lab}</label><select id="o_${id}">${opts.map(([v,t])=>`<option value="${esc(v)}" ${String(v)===String(val)?'selected':''}>${esc(t)}</option>`).join('')}</select><div class="err" id="e_${id}"></div></div>`}
@@ -2095,7 +2099,7 @@ function skipStep(){
  if(obStep===6){ob.wake='07:00';ob.sleep='23:00';ob.grain=''}
  if(!ob.skipped.includes(OB_TITLES[obStep]))ob.skipped.push(OB_TITLES[obStep]);
 }
-$('obBack').onclick=()=>{readOnb();if(obStep>0){obStep--;renderOnb()}else if(!P)go('hero')};
+$('obBack').onclick=()=>{readOnb();if(obStep>0){obStep--;renderOnb()}else if(!P)go('hero');else history.back()};
 $('obNext').onclick=()=>{readOnb();if(!validOnb())return;ob.skipped=ob.skipped.filter(s=>s!==OB_TITLES[obStep]);if(obStep<OBN-1){obStep++;renderOnb();return}finishOnb()};
 $('obSkip').onclick=()=>{readOnb();if(obStep===1)return;skipStep();if(obStep<OBN-1){obStep++;renderOnb();return}finishOnb()};
 function finishOnb(){
@@ -2181,7 +2185,7 @@ function planToday(){try{const c=getChart();if(!c||!c.days||!c.days.length)retur
 const tMin=t=>{const m=String(t||'').match(/(\d+):(\d+)\s*(am|pm)/i);if(!m)return 0;let h=+m[1]%12;if(/pm/i.test(m[3]))h+=12;return h*60+ +m[2]};
 const fName=n=>{const m=String(n).match(/^(.*?)\s*\[(.*)\]\s*$/);return m?[m[1],m[2]]:[n,'']};
 function renderNextMeal(){const box=$('nextMeal');if(!box)return;const pt=planToday();if(!pt){box.innerHTML=`<div class="eyebrow">Your diet chart</div><h2 class="nm-t">Get your 7-day plan</h2><p class="small muted">Meals with exact portions for your body.</p><button class="btn sm" onclick="go('chart')">Open diet chart →</button>`;return}
- const {d,di}=pt,L=dayLog(),isT=curDay()===today(),nc=P.t.noCal,meals=d.meals.filter(m=>m.items.length),done=new Set(L.food.filter(f=>f.plan).map(f=>f.plan));
+ const {d,di}=pt,L=dayLog(),isT=curDay()===today(),nc=P.t.noCal,meals=d.meals.filter(m=>m.items.length&&EN.mealTot(m).k>=40),done=new Set(L.food.filter(f=>f.plan).map(f=>f.plan));
  const now=new Date().getHours()*60+new Date().getMinutes();
  let mi=isT?meals.findIndex(m=>!done.has(m.slot)&&tMin(m.time)+60>=now):meals.findIndex(m=>!done.has(m.slot));
  if(mi<0&&isT)mi=meals.findIndex(m=>!done.has(m.slot));
@@ -2780,6 +2784,8 @@ async function sendCode(email){await api('/api/auth/otp',{method:'POST',body:JSO
 document.querySelectorAll('#authTabs button').forEach(b=>b.onclick=()=>setAuthMode(b.dataset.a));
 $('forgotBtn').onclick=()=>setAuthMode('reset');
 $('otpResend').onclick=async()=>{$('authErr').textContent='';try{await sendCode($('aEmail').value.trim().toLowerCase());toast('New code sent')}catch(e){$('authErr').textContent=e.message}};
+$('authTopBack').onclick=()=>go('hero');
+addEventListener('popstate',e=>{const v=e.state&&e.state.v;if(v==='onb'){startOnb(!!P);return}if(v&&$('v-'+v))go(v,1);else go(P&&TOKEN_()?'home':'hero',1)});
 $('authBack').onclick=()=>{if(authMode==='reset'||otpStep)setAuthMode(authMode==='reset'?'in':authMode);else go('hero')};
 $('authRetry').onclick=()=>renderAuth();
 $('authSkip').onclick=()=>{startOnb()};
